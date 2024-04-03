@@ -16,21 +16,20 @@ from homeassistant.components.notify import (
     PLATFORM_SCHEMA,
     BaseNotificationService,
 )
+from homeassistant.const import CONF_DEVICE
 from homeassistant.core import HomeAssistant
 import homeassistant.helpers.config_validation as cv
 from homeassistant.helpers.typing import ConfigType, DiscoveryInfoType
 
 _LOGGER = logging.getLogger(__name__)
 
-CONF_DEVICE_PATH = "device_path"
 CONF_AT_COMMAND = "at_command"
 CONF_CALL_DURATION = "call_duration"
 
-# TODO: Implement proper validation of the device path
 # TODO: Limit CONF_AT_COMMAND only to ATD and ATDT
 PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend(
     {
-        vol.Required(CONF_DEVICE_PATH): cv.string,
+        vol.Required(CONF_DEVICE): cv.isdevice,
         vol.Required(CONF_AT_COMMAND, default="ATD"): cv.string,
         vol.Required(CONF_CALL_DURATION, default=30): cv.positive_int,
     }
@@ -43,7 +42,7 @@ def get_service(
     discovery_info: DiscoveryInfoType | None = None,
 ) -> GsmCallNotificationService:
     return GsmCallNotificationService(
-        config[CONF_DEVICE_PATH],
+        config[CONF_DEVICE],
         config[CONF_AT_COMMAND],
         config[CONF_CALL_DURATION],
     )
