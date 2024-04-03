@@ -48,6 +48,8 @@ def get_service(
 
 
 class GsmCallNotificationService(BaseNotificationService):
+    LOCK = False
+
     def __init__(self, device_path, at_command, call_duration):
         """Initialize the service."""
         self.device_path = device_path
@@ -73,6 +75,10 @@ class GsmCallNotificationService(BaseNotificationService):
                 _LOGGER.error(ex)
 
     async def _async_dial_target(self, phone_number):
+        if GsmCallNotificationService.LOCK:
+            raise Exception("Dialing already")
+
+        GsmCallNotificationService.LOCK = True
         _LOGGER.debug("Dialing...")
 
         modem = serial.Serial(
@@ -96,3 +102,5 @@ class GsmCallNotificationService(BaseNotificationService):
         modem.write(b'AT+CHUP\r\n')
 
         modem.close()
+
+        GsmCallNotificationService.LOCK = False
