@@ -26,11 +26,10 @@ _LOGGER = logging.getLogger(__name__)
 CONF_AT_COMMAND = "at_command"
 CONF_CALL_DURATION = "call_duration"
 
-# TODO: Limit CONF_AT_COMMAND only to ATD and ATDT
 PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend(
     {
         vol.Required(CONF_DEVICE): cv.isdevice,
-        vol.Required(CONF_AT_COMMAND, default="ATD"): cv.string,
+        vol.Required(CONF_AT_COMMAND, default="ATD"): cv.matches_regex("^(ATD|ATDT)$"),
         vol.Required(CONF_CALL_DURATION, default=30): cv.positive_int,
     }
 )
@@ -67,7 +66,7 @@ class GsmCallNotificationService(BaseNotificationService):
                 phone_number_re = re.compile(r"^\+?[1-9]\d{1,14}$")
                 if not phone_number_re.match(target):
                     raise Exception("Invalid phone number")
-                phone_number = re.sub("\D", "", target)
+                phone_number = re.sub(r"\D", "", target)
 
                 await self._async_dial_target(phone_number)
             except Exception as ex:
