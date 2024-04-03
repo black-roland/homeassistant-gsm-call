@@ -63,14 +63,18 @@ class GsmCallNotificationService(BaseNotificationService):
             _LOGGER.info("At least 1 target is required")
             return
 
-        # TODO: Validate phone numbers and check for the leading "+"
         for target in targets:
             try:
-                await self._async_dial_target(target)
+                phone_number_re = re.compile(r"^\+?[1-9]\d{1,14}$")
+                if not phone_number_re.match(target):
+                    raise Exception("Invalid phone number")
+                phone_number = re.sub("\D", "", target)
+
+                await self._async_dial_target(phone_number)
             except Exception as ex:
                 _LOGGER.error(ex)
 
-    async def _async_dial_target(self, target):
+    async def _async_dial_target(self, phone_number):
         _LOGGER.debug("Dialing...")
 
         modem = serial.Serial(
@@ -83,8 +87,6 @@ class GsmCallNotificationService(BaseNotificationService):
             dsrdtr=True,
             rtscts=True,
         )
-
-        phone_number = re.sub("\D", "", target)
 
         modem.write(f'{self.at_command}+{phone_number};\r\n'.encode())
 
