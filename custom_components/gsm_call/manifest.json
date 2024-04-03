@@ -1,0 +1,11 @@
+{
+  "domain": "gsm_call",
+  "name": "GSM call",
+  "version": "0.1.0",
+  "codeowners": ["@black-roland"],
+  "dependencies": [],
+  "documentation": "",
+  "iot_class": "local_polling",
+  "loggers": ["gsm_call"],
+  "requirements": ["pyserial"]
+}
