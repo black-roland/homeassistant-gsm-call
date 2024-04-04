@@ -1,6 +1,6 @@
 {
   "domain": "gsm_call",
-  "name": "GSM call",
+  "name": "Voice calls using GSM-modem",
   "version": "0.1.0",
   "codeowners": ["@black-roland"],
   "dependencies": [],

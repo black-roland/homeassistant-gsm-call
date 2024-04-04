@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea/homeassistant-dial-via-gsm.iml" filepath="$PROJECT_DIR$/.idea/homeassistant-dial-via-gsm.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/homeassistant-gsm-call.iml" filepath="$PROJECT_DIR$/.idea/homeassistant-gsm-call.iml" />
     </modules>
   </component>
 </project>

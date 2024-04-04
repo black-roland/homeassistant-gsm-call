@@ -1,24 +1,22 @@
-"""GSM dialer for notify component."""
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
 from __future__ import annotations
 
-import logging
-import urllib
-import serial
-from time import sleep
-import re
 import asyncio
+import logging
+import re
 
+import homeassistant.helpers.config_validation as cv
+import serial
 import voluptuous as vol
-
 from homeassistant.components.notify import (
     ATTR_TARGET,
     PLATFORM_SCHEMA,
     BaseNotificationService,
 )
 from homeassistant.const import CONF_DEVICE
-from homeassistant.core import HomeAssistant
-import homeassistant.helpers.config_validation as cv
 from homeassistant.helpers.typing import ConfigType, DiscoveryInfoType
 
 _LOGGER = logging.getLogger(__name__)
@@ -30,13 +28,12 @@ PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend(
     {
         vol.Required(CONF_DEVICE): cv.isdevice,
         vol.Required(CONF_AT_COMMAND, default="ATD"): cv.matches_regex("^(ATD|ATDT)$"),
-        vol.Required(CONF_CALL_DURATION, default=30): cv.positive_int,
+        vol.Required(CONF_CALL_DURATION, default=20): cv.positive_int,
     }
 )
 
 
 def get_service(
-    hass: HomeAssistant,
     config: ConfigType,
     discovery_info: DiscoveryInfoType | None = None,
 ) -> GsmCallNotificationService:
@@ -48,17 +45,14 @@ def get_service(
 
 
 class GsmCallNotificationService(BaseNotificationService):
-    LOCK = False
+    lock = False
 
     def __init__(self, device_path, at_command, call_duration):
-        """Initialize the service."""
         self.device_path = device_path
         self.at_command = at_command
         self.call_duration = call_duration
 
-    # TODO: Prevent parallel calls
     async def async_send_message(self, message="", **kwargs):
-        """Call to specified target users."""
         if not (targets := kwargs.get(ATTR_TARGET)):
             _LOGGER.info("At least 1 target is required")
             return
@@ -75,10 +69,10 @@ class GsmCallNotificationService(BaseNotificationService):
                 _LOGGER.error(ex)
 
     async def _async_dial_target(self, phone_number):
-        if GsmCallNotificationService.LOCK:
-            raise Exception("Dialing already")
+        if GsmCallNotificationService.lock:
+            raise Exception("Calling already")
 
-        GsmCallNotificationService.LOCK = True
+        GsmCallNotificationService.lock = True
         _LOGGER.debug("Dialing...")
 
         modem = serial.Serial(
@@ -93,7 +87,6 @@ class GsmCallNotificationService(BaseNotificationService):
         )
 
         modem.write(f'{self.at_command}+{phone_number};\r\n'.encode())
-
         _LOGGER.debug("ATD sent")
 
         await asyncio.sleep(self.call_duration + 10)
@@ -102,5 +95,4 @@ class GsmCallNotificationService(BaseNotificationService):
         modem.write(b'AT+CHUP\r\n')
 
         modem.close()
-
-        GsmCallNotificationService.LOCK = False
+        GsmCallNotificationService.lock = False
