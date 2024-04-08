@@ -23,13 +23,13 @@ from homeassistant.helpers.typing import ConfigType, DiscoveryInfoType
 _LOGGER = logging.getLogger(__name__)
 
 CONF_AT_COMMAND = "at_command"
-CONF_CALL_DURATION = "call_duration"
+CONF_CALL_DURATION_SEC = "call_duration_sec"
 
 PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend(
     {
         vol.Required(CONF_DEVICE): cv.isdevice,
         vol.Required(CONF_AT_COMMAND, default="ATD"): cv.matches_regex("^(ATD|ATDT)$"),
-        vol.Required(CONF_CALL_DURATION, default=20): cv.positive_int,
+        vol.Required(CONF_CALL_DURATION_SEC, default=25): cv.positive_int,
     }
 )
 
@@ -42,7 +42,7 @@ def get_service(
     return GsmCallNotificationService(
         config[CONF_DEVICE],
         config[CONF_AT_COMMAND],
-        config[CONF_CALL_DURATION],
+        config[CONF_CALL_DURATION_SEC],
     )
 
 
