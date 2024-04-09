@@ -68,18 +68,18 @@ class GsmCallNotificationService(BaseNotificationService):
 
                 await self._async_dial_target(phone_number)
             except Exception as ex:
-                _LOGGER.error(ex)
+                _LOGGER.exception(ex)
 
     async def _async_dial_target(self, phone_number):
         if GsmCallNotificationService.lock:
-            raise Exception("Calling already")
+            raise Exception("Modem is busy")
 
         GsmCallNotificationService.lock = True
-        _LOGGER.debug("Dialing...")
 
+        _LOGGER.info(f"Connecting to {self.device_path}...")
         modem = serial.Serial(
             self.device_path,
-            baudrate=115200,
+            baudrate=75600,
             bytesize=serial.EIGHTBITS,
             parity=serial.PARITY_NONE,
             stopbits=serial.STOPBITS_ONE,
@@ -88,13 +88,13 @@ class GsmCallNotificationService(BaseNotificationService):
             rtscts=True,
         )
 
+        _LOGGER.debug(f"Dialing {phone_number}...")
         modem.write(f'{self.at_command}+{phone_number};\r\n'.encode())
-        _LOGGER.debug("ATD sent")
+        _LOGGER.debug(f"{self.at_command} sent")
 
         await asyncio.sleep(self.call_duration + 10)
 
-        _LOGGER.debug("Hanging up...")
+        _LOGGER.info("Hanging up...")
         modem.write(b'AT+CHUP\r\n')
-
         modem.close()
         GsmCallNotificationService.lock = False

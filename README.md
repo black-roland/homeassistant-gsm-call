@@ -14,7 +14,7 @@ This component can be configured through `configuration.yaml`:
 notify:
   - name: call
     platform: gsm_call
-    device: /dev/ttyUSB1
+    device: /dev/serial/by-id/usb-HUAWEI_Technology_HUAWEI_Mobile-if02-port0
     at_command: ATD # change to ATDT if you're not receiving calls
 ```
 
