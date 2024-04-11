@@ -1,25 +1,48 @@
 # Home Assistant GSM Call
 
+<sub><sup>[_Описание также доступно [на русском](./README.ru.md)_]</sub></sup>
+
 Custom component to make phone calls from Home Assistant using GSM modems.
 
 ## Installation
 
-Add a custom repository `black-roland/homeassistant-gsm-call` to [HACS](https://hacs.xyz/) and install `gsm_call` component.
+This component can be installed using [HACS](https://hacs.xyz/):
+
+1. Go to _HACS_ → _Integrations_.
+1. In the top right corner select the 3-dots menu, and choose _Custom repositories_.
+1. Paste `black-roland/homeassistant-gsm-call`.
+1. Select _Integration_ in the _Category_ field.
+1. Click the _Save_ icon.
+1. Install `gsm_call`.
 
 ## Configuration and usage
 
-This component can be configured through `configuration.yaml`:
+Use `configuration.yaml` to configure the component:
 
 ```yaml
 notify:
   - name: call
     platform: gsm_call
-    device: /dev/serial/by-id/usb-HUAWEI_Technology_HUAWEI_Mobile-if02-port0
+    device: /dev/serial/by-id/usb-HUAWEI_Technology_HUAWEI_Mobile-if02-port0 # modem device path
     at_command: ATD # change to ATDT if you're not receiving calls
 ```
 
-Make sure to restart Home Assistant afterward and then use `notify.call` service to make a phone call. Phone number to call is specified as target.
+Make sure to restart Home Assistant afterward and then use `notify.call` service to make a phone call. The phone number to dial is specified as `target`:
+
+```yaml
+action:
+  service: notify.call
+  data:
+    target: "+12345678901"
+    message: "Required by HASS but not unsed"
+```
 
 ## Supported hardware
 
-Tested on Huawei E161/E169/E620/E800 but [should work with these modems as well](https://www.home-assistant.io/integrations/sms/#list-of-modems-known-to-work).
+In general, this integration [should be compatible with modems specified here](https://www.home-assistant.io/integrations/sms/#list-of-modems-known-to-work).
+
+Tested on:
+
+- Huawei E161/E169/E620/E800.
+- Huawei E3531 (needs to be unlocked using [this guide](http://blog.asiantuntijakaveri.fi/2015/07/convert-huawei-e3372h-153-from.html).
+
