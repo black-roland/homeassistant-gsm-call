@@ -37,6 +37,18 @@ action:
     message: "Required by HASS but not unsed"
 ```
 
+### Call duration
+
+By default, the call lasts about 25 seconds. This could be changed by specifying `call_duration_sec`:
+
+```yaml
+notify:
+  - name: call
+    platform: gsm_call
+    device: /dev/serial/by-id/usb-HUAWEI_Technology_HUAWEI_Mobile-if02-port0
+    call_duration_sec: 45
+```
+
 ## Supported hardware
 
 In general, this integration [should be compatible with modems specified here](https://www.home-assistant.io/integrations/sms/#list-of-modems-known-to-work).
@@ -44,5 +56,5 @@ In general, this integration [should be compatible with modems specified here](h
 Tested on:
 
 - Huawei E161/E169/E620/E800.
-- Huawei E3531 (needs to be unlocked using [this guide](http://blog.asiantuntijakaveri.fi/2015/07/convert-huawei-e3372h-153-from.html).
+- Huawei E3531 (needs to be unlocked using [this guide](http://blog.asiantuntijakaveri.fi/2015/07/convert-huawei-e3372h-153-from.html)).
 

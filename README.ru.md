@@ -37,6 +37,18 @@ action:
     message: "Обязательное поле в HASS, но компонент его не использует"
 ```
 
+### Продолжительность дозвона
+
+По умолчанию дозвон происходит в течение примерно 25 секунд. Время дозвона можно указать в `call_duration_sec`:
+
+```yaml
+notify:
+  - name: call
+    platform: gsm_call
+    device: /dev/serial/by-id/usb-HUAWEI_Technology_HUAWEI_Mobile-if02-port0
+    call_duration_sec: 45
+```
+
 ## Поддерживаемое железо
 
 В целом эта интеграция [должна быть совместима с модемами, указанными здесь](https://www.home-assistant.io/integrations/sms/#list-of-modems-known-to-work).
@@ -44,4 +56,4 @@ action:
 Протестировано на:
 
 - Huawei E161/E169/E620/E800.
-- Huawei E3531 (необходимо разблокировать с помощью [этого руководства](http://blog.asiantuntijakaveri.fi/2015/07/convert-huawei-e3372h-153-from.html).
+- Huawei E3531 (необходимо разблокировать с помощью [этого руководства](http://blog.asiantuntijakaveri.fi/2015/07/convert-huawei-e3372h-153-from.html)).
