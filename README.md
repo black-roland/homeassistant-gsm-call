@@ -56,5 +56,6 @@ In general, this integration [should be compatible with modems specified here](h
 Tested on:
 
 - Huawei E161/E169/E620/E800.
+- Huawei E171.
 - Huawei E3531 (needs to be unlocked using [this guide](http://blog.asiantuntijakaveri.fi/2015/07/convert-huawei-e3372h-153-from.html)).
 

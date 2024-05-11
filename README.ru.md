@@ -56,4 +56,5 @@ notify:
 Протестировано на:
 
 - Huawei E161/E169/E620/E800.
+- Huawei E171.
 - Huawei E3531 (необходимо разблокировать с помощью [этого руководства](http://blog.asiantuntijakaveri.fi/2015/07/convert-huawei-e3372h-153-from.html)).
