@@ -59,3 +59,17 @@ Tested on:
 - Huawei E171.
 - Huawei E3531 (needs to be unlocked using [this guide](http://blog.asiantuntijakaveri.fi/2015/07/convert-huawei-e3372h-153-from.html)).
 
+## Using together with the SMS integration
+
+GSM-modems usually provide multiple interfaces:
+
+```shell
+$ ls -1 /dev/serial/by-id/usb-HUAWEI_Technology_HUAWEI_Mobile-if0*
+/dev/serial/by-id/usb-HUAWEI_Technology_HUAWEI_Mobile-if00-port0
+/dev/serial/by-id/usb-HUAWEI_Technology_HUAWEI_Mobile-if01-port0
+/dev/serial/by-id/usb-HUAWEI_Technology_HUAWEI_Mobile-if02-port0
+```
+
+To use this together with the [sms](https://www.home-assistant.io/integrations/sms/) integration, configure different interfaces for each integration. Otherwise, integrations may mutually block each other.
+
+Also, make sure ModemManager is disabled.

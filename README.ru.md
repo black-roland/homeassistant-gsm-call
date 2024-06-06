@@ -58,3 +58,18 @@ notify:
 - Huawei E161/E169/E620/E800.
 - Huawei E171.
 - Huawei E3531 (необходимо разблокировать с помощью [этого руководства](http://blog.asiantuntijakaveri.fi/2015/07/convert-huawei-e3372h-153-from.html)).
+
+## Использование совместно с интеграцией sms
+
+Модемы обычно предоставляют сразу несколько интерфейсов для взаимодействия:
+
+```shell
+$ ls -1 /dev/serial/by-id/usb-HUAWEI_Technology_HUAWEI_Mobile-if0*
+/dev/serial/by-id/usb-HUAWEI_Technology_HUAWEI_Mobile-if00-port0
+/dev/serial/by-id/usb-HUAWEI_Technology_HUAWEI_Mobile-if01-port0
+/dev/serial/by-id/usb-HUAWEI_Technology_HUAWEI_Mobile-if02-port0
+```
+
+Для использования этой интеграции совместно с [sms](https://www.home-assistant.io/integrations/sms/), укажите разные интерфейсы в настройках каждой интеграции. Иначе они могут блокировать друг друга.
+
+Так же убедитесь, что ModemManager отключен.
