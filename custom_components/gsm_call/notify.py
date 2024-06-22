@@ -47,7 +47,7 @@ def get_service(
 
 
 class GsmCallNotificationService(BaseNotificationService):
-    lock = False
+    modem: serial.Serial = None
 
     def __init__(self, device_path, at_command, call_duration):
         self.device_path = device_path
@@ -70,53 +70,62 @@ class GsmCallNotificationService(BaseNotificationService):
             except Exception as ex:
                 _LOGGER.exception(ex)
 
-    async def _async_dial_target(self, phone_number):
-        if GsmCallNotificationService.lock:
-            raise Exception("Already making a voice call")
-
-        GsmCallNotificationService.lock = True
-
-        _LOGGER.info(f"Connecting to {self.device_path}...")
-        modem = serial.Serial(
+    def connect(self):
+        GsmCallNotificationService.modem = serial.Serial(
             self.device_path,
             baudrate=75600,
             bytesize=serial.EIGHTBITS,
             parity=serial.PARITY_NONE,
             stopbits=serial.STOPBITS_ONE,
+            timeout=5,
             dsrdtr=True,
             rtscts=True,
         )
 
-        modem.write(b'AT\r\n')
+    def terminate(self):
+        GsmCallNotificationService.modem.close()
+        GsmCallNotificationService.modem = None
+
+    async def _async_dial_target(self, phone_number):
+        if GsmCallNotificationService.modem:
+            raise Exception("Already making a voice call")
+
+        _LOGGER.info(f"Connecting to {self.device_path}...")
+        self.connect()
+
+        GsmCallNotificationService.modem.write(b"AT\r\n")
         _LOGGER.debug("AT sent")
 
         try:
-            async with self.hass.timeout.async_timeout(5):
-                await self.hass.async_add_executor_job(modem.read_until, b"OK")
-                _LOGGER.info("Connection established")
+            await asyncio.wait_for(self.hass.async_add_executor_job(GsmCallNotificationService.modem.read_until, b"OK"), 5)
+            _LOGGER.info("Connection established")
         except TimeoutError:
-            # FIXME: DRY
-            modem.close()
-            GsmCallNotificationService.lock = False
+            self.terminate()
             raise Exception("Timed out waiting for connection")
 
         _LOGGER.debug(f"Dialing +{phone_number}...")
-        modem.write(f"{self.at_command}+{phone_number};\r\n".encode())
-        _LOGGER.debug(f"{self.at_command} sent")
+        GsmCallNotificationService.modem.write(f"{self.at_command}+{phone_number};\r\n".encode())
 
         try:
-            async with self.hass.timeout.async_timeout(5):
-                # TODO: Not sure how to properly read response
-                await self.hass.async_add_executor_job(modem.read_until)
-                await self.hass.async_add_executor_job(modem.read_until)
-                reply = await self.hass.async_add_executor_job(modem.read_until)
-                _LOGGER.debug(f"Received {reply.decode("utf-8")}")
+            done, pending = await asyncio.wait(
+                [
+                    self.hass.async_add_executor_job(GsmCallNotificationService.modem.read_until, b"OK"),
+                    self.hass.async_add_executor_job(GsmCallNotificationService.modem.read_until, b"ERROR"),
+                ],
+                return_when=asyncio.FIRST_COMPLETED,
+                timeout=5,
+            )
+            reply = done.pop().result().decode("utf-8")
+            _LOGGER.info(f'Modem replied with {reply}')
+
+            if reply == "ERROR":
+                self.terminate()
+                raise Exception("Error making a voice call")
         except TimeoutError:
-            _LOGGER.info(f"Assuming voice call is being made even without reply to {self.at_command}")
+            _LOGGER.info(f"Assuming voice call is being made even reply to {self.at_command} wasn't received")
 
         await asyncio.sleep(self.call_duration + 10)
 
         _LOGGER.info("Hanging up...")
-        modem.write(b'AT+CHUP\r\n')
-        modem.close()
-        GsmCallNotificationService.lock = False
+        GsmCallNotificationService.modem.write(b"AT+CHUP\r\n")
+        self.terminate()
