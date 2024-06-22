@@ -72,7 +72,7 @@ class GsmCallNotificationService(BaseNotificationService):
 
     async def _async_dial_target(self, phone_number):
         if GsmCallNotificationService.lock:
-            raise Exception("Modem is busy")
+            raise Exception("Already making a voice call")
 
         GsmCallNotificationService.lock = True
 
@@ -88,7 +88,7 @@ class GsmCallNotificationService(BaseNotificationService):
             rtscts=True,
         )
 
-        _LOGGER.debug(f"Dialing {phone_number}...")
+        _LOGGER.debug(f"Dialing +{phone_number}...")
         modem.write(f'{self.at_command}+{phone_number};\r\n'.encode())
         _LOGGER.debug(f"{self.at_command} sent")
 

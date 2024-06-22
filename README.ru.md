@@ -72,4 +72,4 @@ $ ls -1 /dev/serial/by-id/usb-HUAWEI_Technology_HUAWEI_Mobile-if0*
 
 Для использования этой интеграции совместно с [sms](https://www.home-assistant.io/integrations/sms/), укажите разные интерфейсы в настройках каждой интеграции. Иначе они могут блокировать друг друга.
 
-Так же убедитесь, что ModemManager отключен.
+Так же убедитесь, что [ModemManager отключен](https://askubuntu.com/questions/216114/how-can-i-remove-modem-manager-from-boot/612646).
