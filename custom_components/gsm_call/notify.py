@@ -83,14 +83,36 @@ class GsmCallNotificationService(BaseNotificationService):
             bytesize=serial.EIGHTBITS,
             parity=serial.PARITY_NONE,
             stopbits=serial.STOPBITS_ONE,
-            timeout=3,
             dsrdtr=True,
             rtscts=True,
         )
 
+        modem.write(b'AT\r\n')
+        _LOGGER.debug("AT sent")
+
+        try:
+            async with self.hass.timeout.async_timeout(5):
+                await self.hass.async_add_executor_job(modem.read_until, b"OK")
+                _LOGGER.info("Connection established")
+        except TimeoutError:
+            # FIXME: DRY
+            modem.close()
+            GsmCallNotificationService.lock = False
+            raise Exception("Timed out waiting for connection")
+
         _LOGGER.debug(f"Dialing +{phone_number}...")
-        modem.write(f'{self.at_command}+{phone_number};\r\n'.encode())
+        modem.write(f"{self.at_command}+{phone_number};\r\n".encode())
         _LOGGER.debug(f"{self.at_command} sent")
+
+        try:
+            async with self.hass.timeout.async_timeout(5):
+                # TODO: Not sure how to properly read response
+                await self.hass.async_add_executor_job(modem.read_until)
+                await self.hass.async_add_executor_job(modem.read_until)
+                reply = await self.hass.async_add_executor_job(modem.read_until)
+                _LOGGER.debug(f"Received {reply.decode("utf-8")}")
+        except TimeoutError:
+            _LOGGER.info(f"Assuming voice call is being made even without reply to {self.at_command}")
 
         await asyncio.sleep(self.call_duration + 10)
 
