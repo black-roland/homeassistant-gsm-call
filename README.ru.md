@@ -23,7 +23,7 @@
 notify:
   - name: call
     platform: gsm_call
-    device: /dev/serial/by-id/usb-HUAWEI_Technology_HUAWEI_Mobile-if02-port0 # путь до модема
+    device: /dev/serial/by-id/usb-HUAWEI_Technology_HUAWEI_Mobile-if01-port0 # путь до модема
 ```
 
 После перезапустите Home Assistant, а затем используйте службу `notify.call` чтобы позвонить. Номер телефона для дозвона указывается в `target`:
@@ -44,7 +44,7 @@ action:
 notify:
   - name: call
     platform: gsm_call
-    device: /dev/serial/by-id/usb-HUAWEI_Technology_HUAWEI_Mobile-if02-port0
+    device: /dev/serial/by-id/usb-HUAWEI_Technology_HUAWEI_Mobile-if01-port0
     call_duration_sec: 45
 ```
 

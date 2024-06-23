@@ -95,7 +95,7 @@ class GsmCallNotificationService(BaseNotificationService):
         if GsmCallNotificationService.modem is None:
             return
 
-        _LOGGER.debug(f"Closing connection to the modem")
+        _LOGGER.debug(f"Closing connection to the modem...")
         GsmCallNotificationService.modem.close()
         GsmCallNotificationService.modem = None
 
@@ -103,7 +103,15 @@ class GsmCallNotificationService(BaseNotificationService):
         _LOGGER.debug(f"Dialing +{phone_number}...")
         GsmCallNotificationService.modem.write(f"{self.at_command}+{phone_number};\r\n".encode())
 
-        await asyncio.sleep(self.call_duration + 10)
+        await asyncio.sleep(1)
+        reply = GsmCallNotificationService.modem.read(GsmCallNotificationService.modem.in_waiting).decode()
+        _LOGGER.debug(f"Modem replied with ${reply}")
 
-        _LOGGER.info("Hanging up...")
+        if reply.find("ERROR"):
+            raise Exception("Modem replied with an unknown error")
+
+        _LOGGER.info(f"Ringing for {self.call_duration + 5} seconds...")
+        await asyncio.sleep(self.call_duration + 5)
+
+        _LOGGER.debug("Hanging up...")
         GsmCallNotificationService.modem.write(b"AT+CHUP\r\n")

@@ -23,7 +23,7 @@ Use `configuration.yaml` to configure the component:
 notify:
   - name: call
     platform: gsm_call
-    device: /dev/serial/by-id/usb-HUAWEI_Technology_HUAWEI_Mobile-if02-port0 # modem device path
+    device: /dev/serial/by-id/usb-HUAWEI_Technology_HUAWEI_Mobile-if01-port0 # modem device path
 ```
 
 Make sure to restart Home Assistant afterward and then use `notify.call` service to make a phone call. The phone number to dial is specified as `target`:
@@ -44,7 +44,7 @@ By default, the call lasts about 25 seconds. This could be changed by specifying
 notify:
   - name: call
     platform: gsm_call
-    device: /dev/serial/by-id/usb-HUAWEI_Technology_HUAWEI_Mobile-if02-port0
+    device: /dev/serial/by-id/usb-HUAWEI_Technology_HUAWEI_Mobile-if01-port0
     call_duration_sec: 45
 ```
 
