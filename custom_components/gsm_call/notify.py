@@ -102,21 +102,11 @@ class GsmCallNotificationService(BaseNotificationService):
             raise Exception("Timed out waiting for connection")
 
         GsmCallNotificationService.modem.write(b"AT+CFUN=1,1\r\n")
-        try:
-            await asyncio.wait_for(self.hass.async_add_executor_job(GsmCallNotificationService.modem.read_until, b"OK"), 5)
-            _LOGGER.debug("AT+CFUN=1,1 succeeded")
-        except TimeoutError:
-            _LOGGER.info("AT+CFUN=1,1 failed, ignoring")
 
         await asyncio.sleep(1)
 
         _LOGGER.debug(f"Dialing +{phone_number}...")
         GsmCallNotificationService.modem.write(f"{self.at_command}+{phone_number};\r\n".encode())
-        try:
-            await asyncio.wait_for(self.hass.async_add_executor_job(GsmCallNotificationService.modem.read_until, b"OK"), 5)
-            _LOGGER.debug(f"{self.at_command} succeeded")
-        except TimeoutError:
-            _LOGGER.warning(f"{self.at_command} hasn't succeeded or no reply was received from the modem")
 
         await asyncio.sleep(self.call_duration + 10)
 
