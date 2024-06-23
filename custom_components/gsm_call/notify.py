@@ -105,24 +105,12 @@ class GsmCallNotificationService(BaseNotificationService):
 
         _LOGGER.debug(f"Dialing +{phone_number}...")
         GsmCallNotificationService.modem.write(f"{self.at_command}+{phone_number};\r\n".encode())
+        _LOGGER.debug(f"{self.at_command} sent")
 
         try:
-            done, pending = await asyncio.wait(
-                [
-                    self.hass.async_add_executor_job(GsmCallNotificationService.modem.read_until, b"OK"),
-                    self.hass.async_add_executor_job(GsmCallNotificationService.modem.read_until, b"ERROR"),
-                ],
-                return_when=asyncio.FIRST_COMPLETED,
-                timeout=5,
-            )
-            reply = done.pop().result().decode("utf-8")
-            _LOGGER.info(f'Modem replied with {reply}')
-
-            if reply == "ERROR":
-                self.terminate()
-                raise Exception("Error making a voice call")
+            await asyncio.wait_for(self.hass.async_add_executor_job(GsmCallNotificationService.modem.read_until, b"OK"), 5)
         except TimeoutError:
-            _LOGGER.info(f"Assuming voice call is being made even reply to {self.at_command} wasn't received")
+            _LOGGER.warning(f"{self.at_command} hasn't succeeded or no reply was received from the modem")
 
         await asyncio.sleep(self.call_duration + 10)
 
