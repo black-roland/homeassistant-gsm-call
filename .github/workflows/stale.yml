@@ -27,6 +27,9 @@ jobs:
         close-issue-message: 'This issue has been automatically closed because it did not have recent activity. If this remains to be a problem with the latest version of Home Assistant GSM Call, please open a new issue and link this to it. Thanks!'
         stale-pr-message: 'This PR has been automatically marked as stale because it has not had recent activity. It will be closed in 7 days if no further activity occurs. If you wish not to mark it as stale, please leave a comment in this PR. Thanks for your contribution anyway.'
         close-pr-message: 'This PR has been automatically closed because it has not had recent activity. Sorry for that and we are looking forward to your next contribution.'
-        stale-issue-label: 'no-issue-activity'
-        stale-pr-label: 'no-pr-activity'
+        stale-issue-label: 'stale'
+        stale-pr-label: 'stale'
+        close-issue-label: 'wontfix'
+        exempt-issue-labels: 'bug,enhancement,documentation'
         exempt-all-milestones: true
+        exempt-all-assignees: true
