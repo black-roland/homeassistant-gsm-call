@@ -47,7 +47,7 @@ def get_service(
 
 
 class GsmCallNotificationService(BaseNotificationService):
-    modem: serial.Serial = None
+    lock = False
 
     def __init__(self, device_path, at_command, call_duration):
         self.device_path = device_path
@@ -70,50 +70,31 @@ class GsmCallNotificationService(BaseNotificationService):
             except Exception as ex:
                 _LOGGER.exception(ex)
 
-    def connect(self):
-        GsmCallNotificationService.modem = serial.Serial(
+    async def _async_dial_target(self, phone_number):
+        if GsmCallNotificationService.lock:
+            raise Exception("Already making a voice call")
+
+        GsmCallNotificationService.lock = True
+
+        _LOGGER.info(f"Connecting to {self.device_path}...")
+        modem = serial.Serial(
             self.device_path,
             baudrate=75600,
             bytesize=serial.EIGHTBITS,
             parity=serial.PARITY_NONE,
             stopbits=serial.STOPBITS_ONE,
-            timeout=5,
+            timeout=3,
             dsrdtr=True,
             rtscts=True,
         )
 
-    def terminate(self):
-        GsmCallNotificationService.modem.close()
-        GsmCallNotificationService.modem = None
-
-    async def _async_dial_target(self, phone_number):
-        if GsmCallNotificationService.modem:
-            raise Exception("Already making a voice call")
-
-        _LOGGER.info(f"Connecting to {self.device_path}...")
-        self.connect()
-
-        GsmCallNotificationService.modem.write(b"AT\r\n")
-        _LOGGER.debug("AT sent")
-
-        try:
-            await asyncio.wait_for(self.hass.async_add_executor_job(GsmCallNotificationService.modem.read_until, b"OK"), 5)
-            _LOGGER.info("Connection established")
-        except TimeoutError:
-            self.terminate()
-            raise Exception("Timed out waiting for connection")
-
         _LOGGER.debug(f"Dialing +{phone_number}...")
-        GsmCallNotificationService.modem.write(f"{self.at_command}+{phone_number};\r\n".encode())
+        modem.write(f'{self.at_command}+{phone_number};\r\n'.encode())
         _LOGGER.debug(f"{self.at_command} sent")
-
-        try:
-            await asyncio.wait_for(self.hass.async_add_executor_job(GsmCallNotificationService.modem.read_until, b"OK"), 5)
-        except TimeoutError:
-            _LOGGER.warning(f"{self.at_command} hasn't succeeded or no reply was received from the modem")
 
         await asyncio.sleep(self.call_duration + 10)
 
         _LOGGER.info("Hanging up...")
-        GsmCallNotificationService.modem.write(b"AT+CHUP\r\n")
-        self.terminate()
+        modem.write(b'AT+CHUP\r\n')
+        modem.close()
+        GsmCallNotificationService.lock = False
