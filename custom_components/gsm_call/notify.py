@@ -77,7 +77,7 @@ class GsmCallNotificationService(BaseNotificationService):
             bytesize=serial.EIGHTBITS,
             parity=serial.PARITY_NONE,
             stopbits=serial.STOPBITS_ONE,
-            timeout=5,
+            timeout=3,
             dsrdtr=True,
             rtscts=True,
         )
@@ -90,25 +90,31 @@ class GsmCallNotificationService(BaseNotificationService):
         if GsmCallNotificationService.modem:
             raise Exception("Already making a voice call")
 
-        _LOGGER.info(f"Connecting to {self.device_path}...")
+        _LOGGER.debug(f"Connecting to {self.device_path}...")
         self.connect()
 
         GsmCallNotificationService.modem.write(b"AT\r\n")
-        _LOGGER.debug("AT sent")
-
         try:
             await asyncio.wait_for(self.hass.async_add_executor_job(GsmCallNotificationService.modem.read_until, b"OK"), 5)
-            _LOGGER.info("Connection established")
+            _LOGGER.info("Connected to the modem")
         except TimeoutError:
             self.terminate()
             raise Exception("Timed out waiting for connection")
 
-        _LOGGER.debug(f"Dialing +{phone_number}...")
-        GsmCallNotificationService.modem.write(f"{self.at_command}+{phone_number};\r\n".encode())
-        _LOGGER.debug(f"{self.at_command} sent")
-
+        GsmCallNotificationService.modem.write(b"AT+CFUN=1,1\r\n")
         try:
             await asyncio.wait_for(self.hass.async_add_executor_job(GsmCallNotificationService.modem.read_until, b"OK"), 5)
+            _LOGGER.debug("AT+CFUN=1,1 succeeded")
+        except TimeoutError:
+            _LOGGER.info("AT+CFUN=1,1 failed, ignoring")
+
+        await asyncio.sleep(1)
+
+        _LOGGER.debug(f"Dialing +{phone_number}...")
+        GsmCallNotificationService.modem.write(f"{self.at_command}+{phone_number};\r\n".encode())
+        try:
+            await asyncio.wait_for(self.hass.async_add_executor_job(GsmCallNotificationService.modem.read_until, b"OK"), 5)
+            _LOGGER.debug(f"{self.at_command} succeeded")
         except TimeoutError:
             _LOGGER.warning(f"{self.at_command} hasn't succeeded or no reply was received from the modem")
 
