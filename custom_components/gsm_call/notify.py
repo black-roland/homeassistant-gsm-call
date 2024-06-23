@@ -107,7 +107,7 @@ class GsmCallNotificationService(BaseNotificationService):
         reply = GsmCallNotificationService.modem.read(GsmCallNotificationService.modem.in_waiting).decode()
         _LOGGER.debug(f"Modem replied with ${reply}")
 
-        if reply.find("ERROR"):
+        if "ERROR" in reply:
             raise Exception("Modem replied with an unknown error")
 
         _LOGGER.info(f"Ringing for {self.call_duration + 5} seconds...")
