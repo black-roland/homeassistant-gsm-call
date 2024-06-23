@@ -24,7 +24,6 @@ notify:
   - name: call
     platform: gsm_call
     device: /dev/serial/by-id/usb-HUAWEI_Technology_HUAWEI_Mobile-if02-port0 # путь до модема
-    at_command: ATD # измените на ATDT, если звонки не проходят
 ```
 
 После перезапустите Home Assistant, а затем используйте службу `notify.call` чтобы позвонить. Номер телефона для дозвона указывается в `target`:
@@ -49,17 +48,11 @@ notify:
     call_duration_sec: 45
 ```
 
-## Поддерживаемое железо
+## Отправка СМС и дополнительный функционал
 
-В целом эта интеграция [должна быть совместима с модемами, указанными здесь](https://www.home-assistant.io/integrations/sms/#list-of-modems-known-to-work).
+Интеграция предназначена для совершения звонков. Давайте не будем переусложнять. Не планируется добавлять отправку SMS и другой функционал, не связанный со звонками. Для работы с СМС используйте [эту интеграцию](https://www.home-assistant.io/integrations/sms/).
 
-Протестировано на:
-
-- Huawei E161/E169/E620/E800.
-- Huawei E171.
-- Huawei E3531 (необходимо разблокировать с помощью [этого руководства](http://blog.asiantuntijakaveri.fi/2015/07/convert-huawei-e3372h-153-from.html)).
-
-## Использование совместно с интеграцией sms
+### Использование совместно с интеграцией sms
 
 Модемы обычно предоставляют сразу несколько интерфейсов для взаимодействия:
 
@@ -72,4 +65,24 @@ $ ls -1 /dev/serial/by-id/usb-HUAWEI_Technology_HUAWEI_Mobile-if0*
 
 Для использования этой интеграции совместно с [sms](https://www.home-assistant.io/integrations/sms/), укажите разные интерфейсы в настройках каждой интеграции. Иначе они могут блокировать друг друга.
 
-Так же убедитесь, что [ModemManager отключен](https://askubuntu.com/questions/216114/how-can-i-remove-modem-manager-from-boot/612646).
+## Устранение неполадок
+
+Пожалуйста, убедитесь, что [ModemManager отключен](https://askubuntu.com/questions/216114/how-can-i-remove-modem-manager-from-boot/612646).
+
+И включите отладочные логи в `configuration.yaml`:
+
+```yaml
+logger:
+  logs:
+    custom_components.gsm_call: debug
+```
+
+## Поддерживаемое железо
+
+В целом эта интеграция [должна быть совместима с модемами, указанными здесь](https://www.home-assistant.io/integrations/sms/#list-of-modems-known-to-work).
+
+Протестировано на:
+
+- Huawei E161/E169/E620/E800.
+- Huawei E171.
+- Huawei E3531 (необходимо разблокировать с помощью [этого руководства](http://blog.asiantuntijakaveri.fi/2015/07/convert-huawei-e3372h-153-from.html)).
