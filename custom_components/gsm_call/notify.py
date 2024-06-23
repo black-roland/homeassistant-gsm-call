@@ -47,7 +47,7 @@ def get_service(
 
 
 class GsmCallNotificationService(BaseNotificationService):
-    lock = False
+    modem: serial.Serial = None
 
     def __init__(self, device_path, at_command, call_duration):
         self.device_path = device_path
@@ -59,25 +59,28 @@ class GsmCallNotificationService(BaseNotificationService):
             _LOGGER.info("At least 1 target is required")
             return
 
-        for target in targets:
-            try:
+        if GsmCallNotificationService.modem:
+            _LOGGER.info("Already making a voice call")
+            return
+
+        try:
+            self.connect()
+
+            for target in targets:
                 phone_number_re = re.compile(r"^\+?[1-9]\d{1,14}$")
                 if not phone_number_re.match(target):
                     raise Exception("Invalid phone number")
                 phone_number = re.sub(r"\D", "", target)
 
                 await self._async_dial_target(phone_number)
-            except Exception as ex:
-                _LOGGER.exception(ex)
+        except Exception as ex:
+            _LOGGER.exception(ex)
+        finally:
+            self.terminate()
 
-    async def _async_dial_target(self, phone_number):
-        if GsmCallNotificationService.lock:
-            raise Exception("Already making a voice call")
-
-        GsmCallNotificationService.lock = True
-
-        _LOGGER.info(f"Connecting to {self.device_path}...")
-        modem = serial.Serial(
+    def connect(self):
+        _LOGGER.debug(f"Connecting to {self.device_path}...")
+        GsmCallNotificationService.modem = serial.Serial(
             self.device_path,
             baudrate=75600,
             bytesize=serial.EIGHTBITS,
@@ -88,13 +91,19 @@ class GsmCallNotificationService(BaseNotificationService):
             rtscts=True,
         )
 
+    def terminate(self):
+        if GsmCallNotificationService.modem is None:
+            return
+
+        _LOGGER.debug(f"Closing connection to the modem")
+        GsmCallNotificationService.modem.close()
+        GsmCallNotificationService.modem = None
+
+    async def _async_dial_target(self, phone_number):
         _LOGGER.debug(f"Dialing +{phone_number}...")
-        modem.write(f'{self.at_command}+{phone_number};\r\n'.encode())
-        _LOGGER.debug(f"{self.at_command} sent")
+        GsmCallNotificationService.modem.write(f"{self.at_command}+{phone_number};\r\n".encode())
 
         await asyncio.sleep(self.call_duration + 10)
 
         _LOGGER.info("Hanging up...")
-        modem.write(b'AT+CHUP\r\n')
-        modem.close()
-        GsmCallNotificationService.lock = False
+        GsmCallNotificationService.modem.write(b"AT+CHUP\r\n")
