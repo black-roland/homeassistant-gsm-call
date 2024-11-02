@@ -1,0 +1,36 @@
+name: "Release"
+
+on:
+  push:
+    tags:
+      - "v*.*.*"
+
+jobs:
+  release:
+    name: "Release"
+    runs-on: "ubuntu-latest"
+    permissions:
+      contents: write
+    steps:
+      - name: "Checkout"
+        uses: "actions/checkout@v4"
+      - name: "Verify the release version"
+        uses: technote-space/package-version-check-action@v1
+        with:
+          COMMIT_DISABLED: true
+          PACKAGE_DIR: ${{ github.workspace }}/custom_components/gsm_call
+          PACKAGE_NAME: manifest.json
+      - name: "Compress"
+        shell: "bash"
+        run: |
+          cd "${{ github.workspace }}/custom_components/gsm_call"
+          zip -r "${{ runner.temp }}/gsm_call.zip" ./
+      - name: "Publish"
+        uses: softprops/action-gh-release@v2
+        with:
+          draft: true
+          files: ${{ runner.temp }}/gsm_call.zip
+          body: >
+            [![Downloads](https://img.shields.io/github/downloads/black-roland/homeassistant-gsm-call/${{ github.ref_name }}/total?style=flat-square)](https://github.com/black-roland/homeassistant-gsm-call/releases)
+            [![Buy me a coffee](https://img.shields.io/badge/buy%20me%20a%20coffee-cc3336?style=flat-square&logo=coffeescript)](https://www.donationalerts.com/r/mansmarthome)
+          generate_release_notes: true
