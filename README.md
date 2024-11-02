@@ -1,6 +1,10 @@
+Описание на русском [доступно тут](./README.ru.md).
+<br>
+<br>
+
 # Home Assistant GSM Call
 
-<sub><sup>[_Описание также доступно [на русском](./README.ru.md)_]</sub></sup>
+[![Add custom repository to HACS](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=black-roland&repository=homeassistant-gsm-call&category=integration)
 
 Custom component to make phone calls from Home Assistant using GSM modems.
 

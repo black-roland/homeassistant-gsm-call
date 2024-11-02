@@ -1,6 +1,10 @@
+See description [in English here](./README.md).
+<br>
+<br>
+
 # Home Assistant GSM Call
 
-<sub><sup>[_This readme is also available in [English](./README.md)_]</sub></sup>
+[![Добавить репозиторий в HACS](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=black-roland&repository=homeassistant-gsm-call&category=integration)
 
 Пользовательский компонент для совершения телефонных звонков из Home Assistant с использованием GSM-модема.
 
