@@ -22,15 +22,25 @@ from custom_components.gsm_call.const import (
     _LOGGER,
     CONF_AT_COMMAND,
     CONF_CALL_DURATION_SEC,
+    CONF_HARDWARE,
 )
 from custom_components.gsm_call.hardware.generic_dialer import GenericDialer
+from custom_components.gsm_call.hardware.zte_dialer import ZteDialer
 
+
+SUPPORTED_HARDWARE = {
+    "generic": GenericDialer,
+    "zte": ZteDialer,
+}
 
 PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend(
     {
         vol.Required(CONF_DEVICE): cv.isdevice,
-        vol.Required(CONF_AT_COMMAND, default="ATD"): cv.matches_regex("^(ATD|ATDT)$"),
-        vol.Required(CONF_CALL_DURATION_SEC, default=25): cv.positive_int,
+        vol.Optional(CONF_HARDWARE, default="generic"): vol.In(
+            SUPPORTED_HARDWARE.keys()
+        ),
+        vol.Optional(CONF_AT_COMMAND, default="ATD"): cv.matches_regex("^(ATD|ATDT)$"),
+        vol.Optional(CONF_CALL_DURATION_SEC, default=25): cv.positive_int,
     }
 )
 
@@ -40,20 +50,23 @@ def get_service(
     config: ConfigType,
     discovery_info: DiscoveryInfoType | None = None,
 ) -> GsmCallNotificationService:
+    dialer_name = config[CONF_HARDWARE]
+    dialer = SUPPORTED_HARDWARE[dialer_name](
+        config[CONF_AT_COMMAND], config[CONF_CALL_DURATION_SEC]
+    )
+
     return GsmCallNotificationService(
         config[CONF_DEVICE],
-        config[CONF_AT_COMMAND],
-        config[CONF_CALL_DURATION_SEC],
+        dialer,
     )
 
 
 class GsmCallNotificationService(BaseNotificationService):
     modem: serial.Serial | None = None
 
-    def __init__(self, device_path, at_command, call_duration):
+    def __init__(self, device_path, dialer):
         self.device_path = device_path
-        self.at_command = at_command
-        self.call_duration = call_duration
+        self.dialer = dialer
 
     async def async_send_message(self, message="", **kwargs):
         if not (targets := kwargs.get(ATTR_TARGET)):
@@ -73,7 +86,7 @@ class GsmCallNotificationService(BaseNotificationService):
                     raise Exception("Invalid phone number")
                 phone_number = re.sub(r"\D", "", target)
 
-                await self._async_dial_target(phone_number)
+                await self.dialer.dial(self.modem, phone_number)
         except Exception as ex:
             _LOGGER.exception(ex)
         finally:
@@ -99,11 +112,3 @@ class GsmCallNotificationService(BaseNotificationService):
         _LOGGER.debug("Closing connection to the modem...")
         GsmCallNotificationService.modem.close()
         GsmCallNotificationService.modem = None
-
-    async def _async_dial_target(self, phone_number):
-        dialer = GenericDialer(
-            GsmCallNotificationService.modem,
-            self.at_command,
-            self.call_duration,
-        )
-        return await dialer.dial(phone_number)

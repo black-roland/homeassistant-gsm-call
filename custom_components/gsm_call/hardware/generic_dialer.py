@@ -4,21 +4,20 @@
 
 import asyncio
 
-from custom_components.gsm_call.const import _LOGGER
+from ..const import _LOGGER
 
 
 class GenericDialer:
-    def __init__(self, modem, at_command, call_duration):
-        self.serial = modem
+    def __init__(self, at_command, call_duration):
         self.at_command = at_command
         self.call_duration = call_duration
 
-    async def dial(self, phone_number):
+    async def dial(self, modem, phone_number):
         _LOGGER.debug(f"Dialing +{phone_number}...")
-        self.serial.write(f"{self.at_command}+{phone_number};\r\n".encode())
+        modem.write(f"{self.at_command}+{phone_number};\r\n".encode())
 
         await asyncio.sleep(1)
-        reply = self.serial.read(self.serial.in_waiting).decode()
+        reply = modem.read(modem.in_waiting).decode()
         _LOGGER.debug(f"Modem replied with ${reply}")
 
         if "ERROR" in reply:
@@ -28,4 +27,4 @@ class GenericDialer:
         await asyncio.sleep(self.call_duration + 5)
 
         _LOGGER.debug("Hanging up...")
-        self.serial.write(b"AT+CHUP\r\n")
+        modem.write(b"AT+CHUP\r\n")

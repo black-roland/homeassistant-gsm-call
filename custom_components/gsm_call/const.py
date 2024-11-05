@@ -8,3 +8,4 @@ _LOGGER = logging.getLogger(__name__)
 
 CONF_AT_COMMAND = "at_command"
 CONF_CALL_DURATION_SEC = "call_duration_sec"
+CONF_HARDWARE = "hardware"
