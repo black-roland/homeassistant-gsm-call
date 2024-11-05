@@ -4,8 +4,6 @@
 
 from __future__ import annotations
 
-import asyncio
-import logging
 import re
 
 import homeassistant.helpers.config_validation as cv
@@ -20,10 +18,13 @@ from homeassistant.const import CONF_DEVICE
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.typing import ConfigType, DiscoveryInfoType
 
-_LOGGER = logging.getLogger(__name__)
+from custom_components.gsm_call.const import (
+    _LOGGER,
+    CONF_AT_COMMAND,
+    CONF_CALL_DURATION_SEC,
+)
+from custom_components.gsm_call.hardware.generic_dialer import GenericDialer
 
-CONF_AT_COMMAND = "at_command"
-CONF_CALL_DURATION_SEC = "call_duration_sec"
 
 PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend(
     {
@@ -35,7 +36,7 @@ PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend(
 
 
 def get_service(
-    hass: HomeAssistant,
+    _hass: HomeAssistant,
     config: ConfigType,
     discovery_info: DiscoveryInfoType | None = None,
 ) -> GsmCallNotificationService:
@@ -47,7 +48,7 @@ def get_service(
 
 
 class GsmCallNotificationService(BaseNotificationService):
-    modem: serial.Serial = None
+    modem: serial.Serial | None = None
 
     def __init__(self, device_path, at_command, call_duration):
         self.device_path = device_path
@@ -95,23 +96,14 @@ class GsmCallNotificationService(BaseNotificationService):
         if GsmCallNotificationService.modem is None:
             return
 
-        _LOGGER.debug(f"Closing connection to the modem...")
+        _LOGGER.debug("Closing connection to the modem...")
         GsmCallNotificationService.modem.close()
         GsmCallNotificationService.modem = None
 
     async def _async_dial_target(self, phone_number):
-        _LOGGER.debug(f"Dialing +{phone_number}...")
-        GsmCallNotificationService.modem.write(f"{self.at_command}+{phone_number};\r\n".encode())
-
-        await asyncio.sleep(1)
-        reply = GsmCallNotificationService.modem.read(GsmCallNotificationService.modem.in_waiting).decode()
-        _LOGGER.debug(f"Modem replied with ${reply}")
-
-        if "ERROR" in reply:
-            raise Exception("Modem replied with an unknown error")
-
-        _LOGGER.info(f"Ringing for {self.call_duration + 5} seconds...")
-        await asyncio.sleep(self.call_duration + 5)
-
-        _LOGGER.debug("Hanging up...")
-        GsmCallNotificationService.modem.write(b"AT+CHUP\r\n")
+        dialer = GenericDialer(
+            GsmCallNotificationService.modem,
+            self.at_command,
+            self.call_duration,
+        )
+        return await dialer.dial(phone_number)
