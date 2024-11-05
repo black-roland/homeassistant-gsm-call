@@ -71,14 +71,40 @@ To use this together with the [sms](https://www.home-assistant.io/integrations/s
 
 ## Troubleshooting
 
-Please make sure [ModemManager is disabled](https://askubuntu.com/questions/216114/how-can-i-remove-modem-manager-from-boot/612646).
-
-And enable debug logs in `configuration.yaml`:
+For troubleshooting, please enable debug logs in `configuration.yaml` first:
 
 ```yaml
 logger:
   logs:
     custom_components.gsm_call: debug
+```
+
+### ModemManager
+
+Please make sure [ModemManager is disabled](https://askubuntu.com/questions/216114/how-can-i-remove-modem-manager-from-boot/612646).
+
+### ZTE modems
+
+On some ZTE modems, dialing only works after sending an obscure command: `AT%icscall=1,0`. Try specifying `hardware: zte` in the configuration if dialing doesn't work with the default configuration:
+
+```
+notify:
+  - name: call
+    platform: gsm_call
+    device: /dev/serial/by-id/usb-ZTE_MF192_D536C4624C61DC91XXXXXXXXXXXXXXXXXXXXXXXX-if00
+    hardware: zte
+```
+
+### ATD/ATDT
+
+Some modems may require a different AT command to dial. If the default configuration doesn't work, try specifying a different `at_command`:
+
+```yaml
+notify:
+  - name: call
+    platform: gsm_call
+    device: /dev/serial/by-id/usb-HUAWEI_Technology_HUAWEI_Mobile-if01-port0
+    at_command: "ATDT"
 ```
 
 ## Supported hardware
@@ -90,3 +116,4 @@ Tested on:
 - Huawei E161/E169/E620/E800.
 - Huawei E171.
 - Huawei E3531 (needs to be unlocked using [this guide](http://blog.asiantuntijakaveri.fi/2015/07/convert-huawei-e3372h-153-from.html)).
+- ZTE MF192 (with `hardware: zte`).
