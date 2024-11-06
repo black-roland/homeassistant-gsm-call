@@ -24,23 +24,23 @@ from custom_components.gsm_call.const import (
     CONF_CALL_DURATION_SEC,
     CONF_HARDWARE,
 )
-from custom_components.gsm_call.hardware.generic_dialer import GenericDialer
-from custom_components.gsm_call.hardware.zte_dialer import ZteDialer
-
+from custom_components.gsm_call.hardware.at_dialer import ATDialer
+from custom_components.gsm_call.hardware.at_tone_dialer import ATToneDialer
+from custom_components.gsm_call.hardware.zte_dialer import ZTEDialer
 
 SUPPORTED_HARDWARE = {
-    "generic": GenericDialer,
-    "zte": ZteDialer,
+    "atd": ATDialer,
+    "atdt": ATToneDialer,
+    "zte": ZTEDialer,
 }
 
 PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend(
     {
         vol.Required(CONF_DEVICE): cv.isdevice,
-        vol.Optional(CONF_HARDWARE, default="generic"): vol.In(
-            SUPPORTED_HARDWARE.keys()
-        ),
-        vol.Optional(CONF_AT_COMMAND, default="ATD"): cv.matches_regex("^(ATD|ATDT)$"),
+        vol.Optional(CONF_HARDWARE, default="atd"): vol.In(SUPPORTED_HARDWARE.keys()),
         vol.Optional(CONF_CALL_DURATION_SEC, default=25): cv.positive_int,
+        # CONF_AT_COMMAND is replaced by CONF_HARDWARE
+        vol.Optional(CONF_AT_COMMAND, default="ATD"): cv.matches_regex("^(ATD|ATDT)$"),
     }
 )
 
@@ -48,12 +48,14 @@ PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend(
 def get_service(
     _hass: HomeAssistant,
     config: ConfigType,
-    discovery_info: DiscoveryInfoType | None = None,
+    _discovery_info: DiscoveryInfoType | None = None,
 ) -> GsmCallNotificationService:
     dialer_name = config[CONF_HARDWARE]
-    dialer = SUPPORTED_HARDWARE[dialer_name](
-        config[CONF_AT_COMMAND], config[CONF_CALL_DURATION_SEC]
-    )
+
+    if config[CONF_AT_COMMAND] and config[CONF_AT_COMMAND] == "ATDT":
+        dialer_name = "atdt"
+
+    dialer = SUPPORTED_HARDWARE[dialer_name](config[CONF_CALL_DURATION_SEC])
 
     return GsmCallNotificationService(
         config[CONF_DEVICE],

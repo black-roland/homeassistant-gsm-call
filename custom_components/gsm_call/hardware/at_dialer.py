@@ -7,13 +7,15 @@ import asyncio
 from ..const import _LOGGER
 
 
-class GenericDialer:
-    def __init__(self, at_command, call_duration):
-        self.at_command = at_command
+class ATDialer:
+    at_command = "ATD"
+
+    def __init__(self, call_duration):
         self.call_duration = call_duration
 
     async def dial(self, modem, phone_number):
         _LOGGER.debug(f"Dialing +{phone_number}...")
+        _LOGGER.debug(f"Sending command ${self.at_command}+{phone_number}")
         modem.write(f"{self.at_command}+{phone_number};\r\n".encode())
 
         await asyncio.sleep(1)

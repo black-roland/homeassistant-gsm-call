@@ -88,7 +88,7 @@ logger:
 
 На некоторых модемах от ZTE дозвон работает только после предварительной отправки команды `AT%icscall=1,0`. Попробуйте указать `hardware: zte`, если с конфигурацией по умолчанию дозвон не работает:
 
-```
+```yaml
 notify:
   - name: call
     platform: gsm_call
@@ -98,14 +98,14 @@ notify:
 
 ### ATD/ATDT
 
-На некоторых модемах может понадобится использовать другую команду для дозвона. Попробуйте указать `at_command: "ATDT"`, если стандартная ATD не работает:
+На некоторых модемах может понадобится использовать другую команду для дозвона. Попробуйте указать `hardware: atdt`, если со стандартной ATD не работает:
 
 ```yaml
 notify:
   - name: call
     platform: gsm_call
     device: /dev/serial/by-id/usb-HUAWEI_Technology_HUAWEI_Mobile-if01-port0
-    at_command: "ATDT"
+    hardware: atdt
 ```
 
 ## Поддерживаемое железо

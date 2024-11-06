@@ -87,7 +87,7 @@ Please make sure [ModemManager is disabled](https://askubuntu.com/questions/2161
 
 On some ZTE modems, dialing only works after sending an obscure command: `AT%icscall=1,0`. Try specifying `hardware: zte` in the configuration if dialing doesn't work with the default configuration:
 
-```
+```yaml
 notify:
   - name: call
     platform: gsm_call
@@ -97,14 +97,14 @@ notify:
 
 ### ATD/ATDT
 
-Some modems may require a different AT command to dial. If the default configuration doesn't work, try specifying a different `at_command`:
+Some modems may require a different AT command to dial. If the default configuration doesn't work, try specifying `hardware: atdt`:
 
 ```yaml
 notify:
   - name: call
     platform: gsm_call
     device: /dev/serial/by-id/usb-HUAWEI_Technology_HUAWEI_Mobile-if01-port0
-    at_command: "ATDT"
+    hardware: atdt
 ```
 
 ## Supported hardware

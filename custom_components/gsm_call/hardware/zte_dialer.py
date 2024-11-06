@@ -5,13 +5,10 @@
 import asyncio
 
 from ..const import _LOGGER
-from .generic_dialer import GenericDialer
+from .at_dialer import ATDialer
 
 
-class ZteDialer(GenericDialer):
-    def __init__(self, _at_command, call_duration):
-        super().__init__("ATD", call_duration)
-
+class ZTEDialer(ATDialer):
     async def dial(self, modem, phone_number):
         _LOGGER.debug("Sending ZTE's magic AT%icscall=1,0 command...")
         modem.write(b"AT%icscall=1,0\r\n")
