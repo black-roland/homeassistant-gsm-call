@@ -8,5 +8,5 @@
   "issue_tracker": "https://github.com/black-roland/homeassistant-gsm-call/issues",
   "iot_class": "local_polling",
   "loggers": ["gsm_call"],
-  "requirements": ["pyserial"]
+  "requirements": ["pyserial-asyncio-fast==0.13"]
 }

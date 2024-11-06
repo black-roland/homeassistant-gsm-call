@@ -2,7 +2,8 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-import asyncio
+from asyncio import StreamReader, StreamWriter, sleep
+from typing import Tuple
 
 from ..const import _LOGGER
 
@@ -13,20 +14,24 @@ class ATDialer:
     def __init__(self, call_duration):
         self.call_duration = call_duration
 
-    async def dial(self, modem, phone_number):
-        _LOGGER.debug(f"Dialing +{phone_number}...")
-        _LOGGER.debug(f"Sending command ${self.at_command}+{phone_number}")
-        modem.write(f"{self.at_command}+{phone_number};\r\n".encode())
+    async def dial(self, modem: Tuple[StreamReader, StreamWriter], phone_number: str):
+        reader, writer = modem
 
-        await asyncio.sleep(1)
-        reply = modem.read(modem.in_waiting).decode()
+        _LOGGER.debug(f"Dialing +{phone_number}...")
+        writer.write(f"{self.at_command}+{phone_number};\r\n".encode())
+
+        await sleep(1)
+        _LOGGER.debug("Reading from modem...")
+        buf = await reader.read(128)
+        reply = buf.decode().strip()
         _LOGGER.debug(f"Modem replied with ${reply}")
 
         if "ERROR" in reply:
             raise Exception("Modem replied with an unknown error")
 
-        _LOGGER.info(f"Ringing for {self.call_duration + 5} seconds...")
-        await asyncio.sleep(self.call_duration + 5)
+        sleep_duration = self.call_duration + 5
+        _LOGGER.info(f"Ringing for {sleep_duration} seconds...")
+        await sleep(sleep_duration)
 
         _LOGGER.debug("Hanging up...")
-        modem.write(b"AT+CHUP\r\n")
+        writer.write(b"AT+CHUP\r\n")
