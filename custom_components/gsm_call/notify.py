@@ -5,9 +5,11 @@
 from __future__ import annotations
 
 import re
+from asyncio import StreamReader, StreamWriter
+from typing import Tuple
 
 import homeassistant.helpers.config_validation as cv
-import serial
+import serial_asyncio_fast as serial_asyncio
 import voluptuous as vol
 from homeassistant.components.notify import (
     ATTR_TARGET,
@@ -64,7 +66,7 @@ def get_service(
 
 
 class GsmCallNotificationService(BaseNotificationService):
-    modem: serial.Serial | None = None
+    modem: Tuple[StreamReader, StreamWriter] | None = None
 
     def __init__(self, device_path, dialer):
         self.device_path = device_path
@@ -80,7 +82,7 @@ class GsmCallNotificationService(BaseNotificationService):
             return
 
         try:
-            self.connect()
+            await self.connect()
 
             for target in targets:
                 phone_number_re = re.compile(r"^\+?[1-9]\d{1,14}$")
@@ -92,25 +94,25 @@ class GsmCallNotificationService(BaseNotificationService):
         except Exception as ex:
             _LOGGER.exception(ex)
         finally:
-            self.terminate()
+            await self.terminate()
 
-    def connect(self):
+    async def connect(self):
         _LOGGER.debug(f"Connecting to {self.device_path}...")
-        GsmCallNotificationService.modem = serial.Serial(
-            self.device_path,
+        GsmCallNotificationService.modem = await serial_asyncio.open_serial_connection(
+            url=self.device_path,
             baudrate=75600,
-            bytesize=serial.EIGHTBITS,
-            parity=serial.PARITY_NONE,
-            stopbits=serial.STOPBITS_ONE,
-            timeout=3,
+            bytesize=serial_asyncio.serial.EIGHTBITS,
+            parity=serial_asyncio.serial.PARITY_NONE,
+            stopbits=serial_asyncio.serial.STOPBITS_ONE,
             dsrdtr=True,
             rtscts=True,
         )
 
-    def terminate(self):
+    async def terminate(self):
         if GsmCallNotificationService.modem is None:
             return
 
         _LOGGER.debug("Closing connection to the modem...")
-        GsmCallNotificationService.modem.close()
+        GsmCallNotificationService.modem[1].close()
+        await GsmCallNotificationService.modem[1].wait_closed()
         GsmCallNotificationService.modem = None
