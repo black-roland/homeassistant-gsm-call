@@ -52,7 +52,7 @@ def get_service(
 ) -> GsmCallNotificationService:
     dialer_name = config[CONF_HARDWARE]
 
-    if config[CONF_AT_COMMAND] and config[CONF_AT_COMMAND] == "ATDT":
+    if config[CONF_HARDWARE] == "atd" and config[CONF_AT_COMMAND] == "ATDT":
         dialer_name = "atdt"
 
     dialer = SUPPORTED_HARDWARE[dialer_name](config[CONF_CALL_DURATION_SEC])
