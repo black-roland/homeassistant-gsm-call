@@ -11,8 +11,10 @@ CONF_AT_COMMAND = "at_command"
 CONF_CALL_DURATION_SEC = "call_duration_sec"
 CONF_HARDWARE = "hardware"
 
+EVENT_GSM_CALL_COMPETED = "gsm_call_completed"
+
 
 class CallState(str, Enum):
-    TIMEOUT = "timeout"
+    TIMEDOUT = "timedout"
     DECLINED = "declined"
     ANSWERED = "answered"

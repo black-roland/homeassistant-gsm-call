@@ -23,6 +23,7 @@ from custom_components.gsm_call.const import (
     CONF_AT_COMMAND,
     CONF_CALL_DURATION_SEC,
     CONF_HARDWARE,
+    EVENT_GSM_CALL_COMPETED,
 )
 from custom_components.gsm_call.hardware.at_dialer import ATDialer
 from custom_components.gsm_call.hardware.at_tone_dialer import ATToneDialer
@@ -89,7 +90,11 @@ class GsmCallNotificationService(BaseNotificationService):
                     raise Exception("Invalid phone number")
                 phone_number = re.sub(r"\D", "", target)
 
-                await self.dialer.dial(self.modem, phone_number)
+                call_state = await self.dialer.dial(self.modem, phone_number)
+                self.hass.bus.async_fire(
+                    EVENT_GSM_CALL_COMPETED,
+                    {"phone_number": phone_number, "call_state": call_state},
+                )
         except Exception as ex:
             _LOGGER.exception(ex)
         finally:

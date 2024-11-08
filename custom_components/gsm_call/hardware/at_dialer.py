@@ -13,10 +13,10 @@ from ..modem import READ_LIMIT, Modem
 class ATDialer:
     at_command = "ATD"
 
-    def __init__(self, call_duration_sec):
+    def __init__(self, call_duration_sec: int):
         self.call_duration = call_duration_sec + 5  # ~5 sec for a call to initialize
 
-    async def dial(self, modem: Modem, phone_number: str):
+    async def dial(self, modem: Modem, phone_number: str) -> CallState:
         _LOGGER.debug(f"Dialing +{phone_number}...")
         modem.writer.write(f"{self.at_command}+{phone_number};\r\n".encode())
 
@@ -39,12 +39,14 @@ class ATDialer:
                 timeout=self.call_duration,
             )
         except asyncio.TimeoutError:
-            call_state = CallState.TIMEOUT
+            call_state = CallState.TIMEDOUT
 
         _LOGGER.info(f"Call state: {call_state}")
 
         _LOGGER.debug("Hanging up...")
         modem.writer.write(b"AT+CHUP\r\n")
+
+        return call_state
 
     async def _wait_call_completion(self, modem: Modem):
         while True:
