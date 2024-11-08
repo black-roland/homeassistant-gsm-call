@@ -11,24 +11,26 @@ import serial_asyncio_fast as serial_asyncio
 import voluptuous as vol
 from homeassistant.components.notify import (
     ATTR_TARGET,
-    PLATFORM_SCHEMA,
+    PLATFORM_SCHEMA as NOTIFY_PLATFORM_SCHEMA,
     BaseNotificationService,
 )
 from homeassistant.const import CONF_DEVICE
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.typing import ConfigType, DiscoveryInfoType
 
-from custom_components.gsm_call.const import (
+from .const import (
     _LOGGER,
+    ATTR_CALL_STATE,
+    ATTR_PHONE_NUMBER,
     CONF_AT_COMMAND,
     CONF_CALL_DURATION_SEC,
     CONF_HARDWARE,
     EVENT_GSM_CALL_COMPETED,
 )
-from custom_components.gsm_call.hardware.at_dialer import ATDialer
-from custom_components.gsm_call.hardware.at_tone_dialer import ATToneDialer
-from custom_components.gsm_call.hardware.zte_dialer import ZTEDialer
-from custom_components.gsm_call.modem import READ_LIMIT, Modem
+from .hardware.at_dialer import ATDialer
+from .hardware.at_tone_dialer import ATToneDialer
+from .hardware.zte_dialer import ZTEDialer
+from .modem import READ_LIMIT, Modem
 
 SUPPORTED_HARDWARE = {
     "atd": ATDialer,
@@ -36,7 +38,7 @@ SUPPORTED_HARDWARE = {
     "zte": ZTEDialer,
 }
 
-PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend(
+PLATFORM_SCHEMA = NOTIFY_PLATFORM_SCHEMA.extend(
     {
         vol.Required(CONF_DEVICE): cv.isdevice,
         vol.Optional(CONF_HARDWARE, default="atd"): vol.In(SUPPORTED_HARDWARE.keys()),
@@ -72,7 +74,7 @@ class GsmCallNotificationService(BaseNotificationService):
         self.device_path = device_path
         self.dialer = dialer
 
-    async def async_send_message(self, message="", **kwargs):
+    async def async_send_message(self, _message="", **kwargs):
         if not (targets := kwargs.get(ATTR_TARGET)):
             _LOGGER.info("At least 1 target is required")
             return
@@ -93,7 +95,7 @@ class GsmCallNotificationService(BaseNotificationService):
                 call_state = await self.dialer.dial(self.modem, phone_number)
                 self.hass.bus.async_fire(
                     EVENT_GSM_CALL_COMPETED,
-                    {"phone_number": phone_number, "call_state": call_state},
+                    {ATTR_PHONE_NUMBER: phone_number, ATTR_CALL_STATE: call_state},
                 )
         except Exception as ex:
             _LOGGER.exception(ex)

@@ -7,11 +7,15 @@ from enum import Enum
 
 _LOGGER = logging.getLogger(__name__)
 
+DOMAIN = "gsm_call"
+
 CONF_AT_COMMAND = "at_command"
 CONF_CALL_DURATION_SEC = "call_duration_sec"
 CONF_HARDWARE = "hardware"
 
-EVENT_GSM_CALL_COMPETED = "gsm_call_completed"
+EVENT_GSM_CALL_COMPETED = f"{DOMAIN}_completed"
+ATTR_PHONE_NUMBER = "phone_number"
+ATTR_CALL_STATE = "call_state"
 
 
 class CallState(str, Enum):

@@ -26,11 +26,11 @@ class ATDialer:
         reply = buf.decode().strip()
         _LOGGER.debug(f"Modem replied with {reply}")
 
-        if "ERROR" in reply or "NO CARRIER" in reply:
-            raise HomeAssistantError("Modem replied with an error")
-
         if "BUSY" in reply:
             raise HomeAssistantError("Busy")
+
+        if "ERROR" in reply or "NO CARRIER" in reply:
+            raise HomeAssistantError(f"Modem replied with an error: {reply}")
 
         _LOGGER.info(f"Ringing for {self.call_duration} seconds...")
         try:
