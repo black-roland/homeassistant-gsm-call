@@ -5,8 +5,6 @@
 from __future__ import annotations
 
 import re
-from asyncio import StreamReader, StreamWriter
-from typing import Tuple
 
 import homeassistant.helpers.config_validation as cv
 import serial_asyncio_fast as serial_asyncio
@@ -29,6 +27,7 @@ from custom_components.gsm_call.const import (
 from custom_components.gsm_call.hardware.at_dialer import ATDialer
 from custom_components.gsm_call.hardware.at_tone_dialer import ATToneDialer
 from custom_components.gsm_call.hardware.zte_dialer import ZTEDialer
+from custom_components.gsm_call.modem import READ_LIMIT, Modem
 
 SUPPORTED_HARDWARE = {
     "atd": ATDialer,
@@ -66,7 +65,7 @@ def get_service(
 
 
 class GsmCallNotificationService(BaseNotificationService):
-    modem: Tuple[StreamReader, StreamWriter] | None = None
+    modem: Modem | None = None
 
     def __init__(self, device_path, dialer):
         self.device_path = device_path
@@ -98,14 +97,17 @@ class GsmCallNotificationService(BaseNotificationService):
 
     async def connect(self):
         _LOGGER.debug(f"Connecting to {self.device_path}...")
-        GsmCallNotificationService.modem = await serial_asyncio.open_serial_connection(
-            url=self.device_path,
-            baudrate=75600,
-            bytesize=serial_asyncio.serial.EIGHTBITS,
-            parity=serial_asyncio.serial.PARITY_NONE,
-            stopbits=serial_asyncio.serial.STOPBITS_ONE,
-            dsrdtr=True,
-            rtscts=True,
+        GsmCallNotificationService.modem = Modem(
+            await serial_asyncio.open_serial_connection(
+                url=self.device_path,
+                baudrate=75600,
+                bytesize=serial_asyncio.serial.EIGHTBITS,
+                parity=serial_asyncio.serial.PARITY_NONE,
+                stopbits=serial_asyncio.serial.STOPBITS_ONE,
+                dsrdtr=True,
+                rtscts=True,
+                limit=READ_LIMIT,
+            )
         )
 
     async def terminate(self):
@@ -113,6 +115,6 @@ class GsmCallNotificationService(BaseNotificationService):
             return
 
         _LOGGER.debug("Closing connection to the modem...")
-        GsmCallNotificationService.modem[1].close()
-        await GsmCallNotificationService.modem[1].wait_closed()
+        GsmCallNotificationService.modem.writer.close()
+        await GsmCallNotificationService.modem.writer.wait_closed()
         GsmCallNotificationService.modem = None
