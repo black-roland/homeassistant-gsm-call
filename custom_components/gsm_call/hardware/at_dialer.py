@@ -6,7 +6,7 @@ import asyncio
 
 from homeassistant.exceptions import HomeAssistantError
 
-from ..const import _LOGGER, CallState
+from ..const import _LOGGER, EndedReason
 from ..modem import READ_LIMIT, Modem
 
 
@@ -16,7 +16,7 @@ class ATDialer:
     def __init__(self, call_duration_sec: int):
         self.call_duration = call_duration_sec + 5  # ~5 sec for a call to initialize
 
-    async def dial(self, modem: Modem, phone_number: str) -> CallState:
+    async def dial(self, modem: Modem, phone_number: str) -> EndedReason:
         _LOGGER.debug(f"Dialing +{phone_number}...")
         modem.writer.write(f"{self.at_command}+{phone_number};\r\n".encode())
 
@@ -39,7 +39,7 @@ class ATDialer:
                 timeout=self.call_duration,
             )
         except asyncio.TimeoutError:
-            call_state = CallState.TIMEDOUT
+            call_state = EndedReason.NOT_ANSWERED
 
         _LOGGER.info(f"Call state: {call_state}")
 
@@ -62,7 +62,7 @@ class ATDialer:
             _LOGGER.debug(f"Modem replied with {reply}")
 
             if "+CLCC: 1,0,0" in reply:
-                return CallState.ANSWERED
+                return EndedReason.ANSWERED
 
             if "+CLCC: 1,0" not in reply:
-                return CallState.DECLINED
+                return EndedReason.DECLINED

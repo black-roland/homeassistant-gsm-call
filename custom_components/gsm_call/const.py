@@ -13,12 +13,12 @@ CONF_AT_COMMAND = "at_command"
 CONF_CALL_DURATION_SEC = "call_duration_sec"
 CONF_HARDWARE = "hardware"
 
-EVENT_GSM_CALL_COMPETED = f"{DOMAIN}_completed"
+EVENT_GSM_CALL_ENDED = f"{DOMAIN}_ended"
 ATTR_PHONE_NUMBER = "phone_number"
-ATTR_CALL_STATE = "call_state"
+ATTR_REASON = "reason"
 
 
-class CallState(str, Enum):
-    TIMEDOUT = "timedout"
+class EndedReason(str, Enum):
+    NOT_ANSWERED = "not_answered"
     DECLINED = "declined"
     ANSWERED = "answered"

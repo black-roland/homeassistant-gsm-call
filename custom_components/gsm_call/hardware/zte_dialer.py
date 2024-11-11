@@ -4,13 +4,13 @@
 
 import asyncio
 
-from ..const import _LOGGER, CallState
+from ..const import _LOGGER, EndedReason
 from ..modem import Modem
 from .at_dialer import ATDialer
 
 
 class ZTEDialer(ATDialer):
-    async def dial(self, modem: Modem, phone_number: str) -> CallState:
+    async def dial(self, modem: Modem, phone_number: str) -> EndedReason:
         _LOGGER.debug("Sending ZTE's magic AT%icscall=1,0 command...")
         modem.writer.write(b"AT%icscall=1,0\r\n")
 

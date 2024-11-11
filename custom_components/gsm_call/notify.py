@@ -9,23 +9,21 @@ import re
 import homeassistant.helpers.config_validation as cv
 import serial_asyncio_fast as serial_asyncio
 import voluptuous as vol
-from homeassistant.components.notify import (
-    ATTR_TARGET,
-    PLATFORM_SCHEMA as NOTIFY_PLATFORM_SCHEMA,
-    BaseNotificationService,
-)
+from homeassistant.components.notify import ATTR_TARGET
+from homeassistant.components.notify import PLATFORM_SCHEMA as NOTIFY_PLATFORM_SCHEMA
+from homeassistant.components.notify import BaseNotificationService
 from homeassistant.const import CONF_DEVICE
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.typing import ConfigType, DiscoveryInfoType
 
 from .const import (
     _LOGGER,
-    ATTR_CALL_STATE,
     ATTR_PHONE_NUMBER,
+    ATTR_REASON,
     CONF_AT_COMMAND,
     CONF_CALL_DURATION_SEC,
     CONF_HARDWARE,
-    EVENT_GSM_CALL_COMPETED,
+    EVENT_GSM_CALL_ENDED,
 )
 from .hardware.at_dialer import ATDialer
 from .hardware.at_tone_dialer import ATToneDialer
@@ -94,8 +92,8 @@ class GsmCallNotificationService(BaseNotificationService):
 
                 call_state = await self.dialer.dial(self.modem, phone_number)
                 self.hass.bus.async_fire(
-                    EVENT_GSM_CALL_COMPETED,
-                    {ATTR_PHONE_NUMBER: phone_number, ATTR_CALL_STATE: call_state},
+                    EVENT_GSM_CALL_ENDED,
+                    {ATTR_PHONE_NUMBER: phone_number, ATTR_REASON: call_state},
                 )
         except Exception as ex:
             _LOGGER.exception(ex)
