@@ -40,7 +40,7 @@ PLATFORM_SCHEMA = NOTIFY_PLATFORM_SCHEMA.extend(
     {
         vol.Required(CONF_DEVICE): cv.isdevice,
         vol.Optional(CONF_HARDWARE, default="atd"): vol.In(SUPPORTED_HARDWARE.keys()),
-        vol.Optional(CONF_CALL_DURATION_SEC, default=25): cv.positive_int,
+        vol.Optional(CONF_CALL_DURATION_SEC, default=30): cv.positive_int,
         # CONF_AT_COMMAND is replaced by CONF_HARDWARE
         vol.Optional(CONF_AT_COMMAND, default="ATD"): cv.matches_regex("^(ATD|ATDT)$"),
     }
