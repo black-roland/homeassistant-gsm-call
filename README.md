@@ -6,11 +6,11 @@
 
 [![Add custom repository to HACS](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=black-roland&repository=homeassistant-gsm-call&category=integration)
 
-Custom component to make phone calls from Home Assistant using GSM modems.
+Home Assistant integraion for making phone calls using 3G/4G modems.
 
 ## Installation
 
-This component can be installed using [HACS](https://hacs.xyz/):
+This integration can be installed using HACS. Click the blue button above or add repository manually:
 
 1. Go to _HACS_ → _Integrations_.
 1. In the top right corner select the 3-dots menu, and choose _Custom repositories_.
@@ -21,7 +21,7 @@ This component can be installed using [HACS](https://hacs.xyz/):
 
 ## Configuration and usage
 
-Use `configuration.yaml` to configure the component:
+To use this integration, add the following to your `configuration.yaml`:
 
 ```yaml
 notify:
@@ -30,27 +30,31 @@ notify:
     device: /dev/serial/by-id/usb-HUAWEI_Technology_HUAWEI_Mobile-if01-port0 # modem device path
 ```
 
-Make sure to restart Home Assistant afterward and then use `notify.call` service to make a phone call. The phone number to dial is specified as `target`:
+Make sure to restart Home Assistant after updating `configuration.yaml`. Use `notify.call` action to make a phone call. The phone number to dial is specified as `target`:
 
 ```yaml
 action:
   service: notify.call
   data:
     target: "+12345678901"
-    message: "Required by HASS but not used by integration"
+    message: "Required by HASS but not used by the integration — enter any text here"
 ```
 
-### Call duration
+### Dialing duration
 
-By default, the call lasts about 25 seconds. This could be changed by specifying `call_duration_sec`:
+By default, the integration tries to make a phone call for 30 seconds. Duration can be changed by specifying `call_duration_sec`:
 
 ```yaml
 notify:
   - name: call
     platform: gsm_call
     device: /dev/serial/by-id/usb-HUAWEI_Technology_HUAWEI_Mobile-if01-port0
-    call_duration_sec: 45
+    call_duration_sec: 40
 ```
+
+Please take in mind that your service provider might interrupt dialing before reaching the desired time if the duration is too high.
+
+The duration is counted from the moment the called phone starts ringing.
 
 ## Support for SMS and other features
 
