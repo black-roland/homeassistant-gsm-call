@@ -17,7 +17,7 @@ See description [in English here](./README.md).
 1. Вставьте `black-roland/homeassistant-gsm-call`.
 1. Выберите _Интеграция_ в поле _Категория_.
 1. Нажмите _Сохранить_.
-1. Установите `gsm_call`.
+1. Установите «GSM Call».
 
 ## Настройка и использование
 

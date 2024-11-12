@@ -10,14 +10,14 @@ Home Assistant integraion for making phone calls using 3G/4G modems.
 
 ## Installation
 
-This integration can be installed using HACS. Click the blue button above or add repository manually:
+This integration can be installed using HACS. To add GSM Call to your Home Assistant, click the blue button above or add repository manually:
 
 1. Go to _HACS_ → _Integrations_.
 1. In the top right corner select the 3-dots menu, and choose _Custom repositories_.
 1. Paste `black-roland/homeassistant-gsm-call`.
 1. Select _Integration_ in the _Category_ field.
 1. Click the _Save_ icon.
-1. Install `gsm_call`.
+1. Install “GSM Call”.
 
 ## Configuration and usage
 
@@ -56,7 +56,7 @@ Please take in mind that your service provider might interrupt dialing before re
 
 The duration is counted from the moment the called phone starts ringing.
 
-## Support for SMS and other features
+## SMS support and other features
 
 This integration is intended for making voice calls. Let's keep it simple. There are no plans to add SMS or other functionality not directly related to voice calls. For SMS support, please check out [this integration](https://www.home-assistant.io/integrations/sms/).
 
