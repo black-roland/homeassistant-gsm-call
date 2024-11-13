@@ -100,7 +100,7 @@ class GsmCallNotificationService(BaseNotificationService):
     async def connect(self):
         _LOGGER.debug(f"Connecting to {self.device_path}...")
         GsmCallNotificationService.modem = Modem(
-            await serial_asyncio.open_serial_connection(
+            *await serial_asyncio.open_serial_connection(
                 url=self.device_path,
                 baudrate=75600,
                 bytesize=serial_asyncio.serial.EIGHTBITS,
