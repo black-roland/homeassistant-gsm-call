@@ -4,20 +4,22 @@
 
 # Home Assistant GSM Call
 
-[![Add custom repository to HACS](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=black-roland&repository=homeassistant-gsm-call&category=integration)
+[![Add a custom repository to HACS](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=black-roland&repository=homeassistant-gsm-call&category=integration)
 
-Home Assistant integraion for making phone calls using 3G/4G modems.
+Home Assistant integration which allows you to call a phone number using 3G/4G, LTE modems.
+
+The integration is primarily designed for emergency notification of important events in your smart home.
 
 ## Installation
 
-This integration can be installed using HACS. To add GSM Call to your Home Assistant, click the blue button above or add repository manually:
+This integration can be installed using HACS. To add GSM Call to your Home Assistant, click the blue button above or add the repository manually:
 
-1. Go to _HACS_ → _Integrations_.
-1. In the top right corner select the 3-dots menu, and choose _Custom repositories_.
-1. Paste `black-roland/homeassistant-gsm-call`.
-1. Select _Integration_ in the _Category_ field.
-1. Click the _Save_ icon.
-1. Install “GSM Call”.
+1. Go to *HACS* → *Integrations*.
+2. In the top right corner, select the three-dots menu and choose _Custom repositories_.
+3. Paste `black-roland/homeassistant-gsm-call`.
+4. Select _Integration_ in the _Category_ field.
+5. Click the _Save_ icon.
+6. Install “GSM Call”.
 
 ## Configuration and usage
 
@@ -30,7 +32,7 @@ notify:
     device: /dev/serial/by-id/usb-HUAWEI_Technology_HUAWEI_Mobile-if01-port0 # modem device path
 ```
 
-Make sure to restart Home Assistant after updating `configuration.yaml`. Use `notify.call` action to make a phone call. The phone number to dial is specified as `target`:
+Make sure to restart Home Assistant after updating `configuration.yaml`. Use the `notify.call` action to make a phone call. The phone number to dial is specified as `target`:
 
 ```yaml
 action:
@@ -51,10 +53,31 @@ notify:
     device: /dev/serial/by-id/usb-HUAWEI_Technology_HUAWEI_Mobile-if01-port0
     call_duration_sec: 40
 ```
-
-Please take in mind that your service provider might interrupt dialing before reaching the desired time if the duration is too high.
+Please take into account that your service provider might interrupt dialing before reaching the desired time if the duration is too high.
 
 The duration is counted from the moment the called phone starts ringing.
+
+## Events
+
+The integration fires the `gsm_call_ended` event indicating whether the call was declined or answered. For example, you can turn off the alarm if the callee declined a call:
+
+```yaml
+automation:
+  - alias: "Disarm the security alarm when a call is declined"
+    triggers:
+      - trigger: event
+        event_type: gsm_call_ended
+        event_data:
+          reason: "declined"
+    actions:
+      - action: alarm_control_panel.alarm_disarm
+        target:
+          entity_id: alarm_control_panel.security
+```
+
+`reason` can contain the following values: `not_answered`, `declined`, `answered`.
+
+In addition to the `reason`, you can filter by the `phone_number`. All possible data properties can be found in [developer tools](https://my.home-assistant.io/create-link/?redirect=developer_events).
 
 ## SMS support and other features
 
@@ -62,7 +85,7 @@ This integration is intended for making voice calls. Let's keep it simple. There
 
 ### Using together with the SMS integration
 
-GSM-modems usually provide multiple interfaces:
+GSM modems usually provide multiple interfaces:
 
 ```shell
 $ ls -1 /dev/serial/by-id/usb-HUAWEI_Technology_HUAWEI_Mobile-if0*
@@ -120,4 +143,4 @@ Tested on:
 - Huawei E161/E169/E620/E800.
 - Huawei E171.
 - Huawei E3531 (needs to be unlocked using [this guide](http://blog.asiantuntijakaveri.fi/2015/07/convert-huawei-e3372h-153-from.html)).
-- ZTE MF192 (with `hardware: zte`).
+- ZTE MF192 (`hardware: zte` must be specified in the configuration). Cannot be used simultaneously with the SMS integration.
