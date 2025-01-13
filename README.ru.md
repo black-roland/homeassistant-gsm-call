@@ -139,6 +139,14 @@ notify:
     hardware: atdt
 ```
 
+## Спасибо
+
+Интеграция оказалась полезной? Хотите сказать спасибо? Кофе автору — ваша благодарность. <kbd>[☕ На кофе](https://mansmarthome.info/donate#donationalerts)</kbd> 
+
+Большое спасибо всем, кто меня поддерживает:
+
+<img src="https://github.com/user-attachments/assets/57f36b9d-118a-47b7-9ac3-77319bd6d7e3" height="100px" alt="Аноним" />
+
 ## Поддерживаемое железо
 
 В целом эта интеграция [должна быть совместима с модемами, указанными здесь](https://www.home-assistant.io/integrations/sms/#list-of-modems-known-to-work).
