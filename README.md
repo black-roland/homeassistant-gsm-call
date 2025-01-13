@@ -8,7 +8,7 @@
 
 Home Assistant integration which allows you to call a phone number using 3G/4G, LTE modems.
 
-The integration is primarily designed for emergency notification of important events in your smart home.
+The main idea is to use a modem for emergency notifications about important events in your smart home. However, emergency alerts are just one example, and the integration can be used in other scenarios as well.
 
 ## Installation
 
@@ -31,6 +31,8 @@ notify:
     platform: gsm_call
     device: /dev/serial/by-id/usb-HUAWEI_Technology_HUAWEI_Mobile-if01-port0 # modem device path
 ```
+
+The modem path can be obtained by [by clicking on the «All hardware» button](https://my.home-assistant.io/redirect/hardware/).
 
 Make sure to restart Home Assistant after updating `configuration.yaml`. Use the `notify.call` action to make a phone call. The phone number to dial is specified as `target`:
 
