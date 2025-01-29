@@ -145,7 +145,10 @@ notify:
 
 Большое спасибо всем, кто меня поддерживает:
 
-<img src="https://github.com/user-attachments/assets/57f36b9d-118a-47b7-9ac3-77319bd6d7e3" height="100px" alt="Аноним" />
+<p>
+  <img src="https://github.com/user-attachments/assets/57f36b9d-118a-47b7-9ac3-77319bd6d7e3" height="100px" alt="Аноним" />
+  <img src="https://github.com/user-attachments/assets/107d303c-e052-4b19-bf41-4f8ef675c6ed" height="100px" alt="ivanik7" />
+</p>
 
 ## Поддерживаемое железо
 
