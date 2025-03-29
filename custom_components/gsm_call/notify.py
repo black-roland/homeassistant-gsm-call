@@ -27,6 +27,7 @@ from .const import (
 )
 from .hardware.at_dialer import ATDialer
 from .hardware.at_tone_dialer import ATToneDialer
+from .hardware.gtm382_dialer import GTM382Dialer
 from .hardware.zte_dialer import ZTEDialer
 from .modem import READ_LIMIT, Modem
 
@@ -34,6 +35,7 @@ SUPPORTED_HARDWARE = {
     "atd": ATDialer,
     "atdt": ATToneDialer,
     "zte": ZTEDialer,
+    "gtm382": GTM382Dialer,
 }
 
 PLATFORM_SCHEMA = NOTIFY_PLATFORM_SCHEMA.extend(
