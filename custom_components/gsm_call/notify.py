@@ -83,21 +83,23 @@ class GsmCallNotificationService(BaseNotificationService):
             _LOGGER.info("Already making a voice call")
             return
 
-        await self.connect()
+        try:
+            await self.connect()
 
-        for target in targets:
-            phone_number_re = re.compile(r"^\+?[1-9]\d{1,14}$")
-            if not phone_number_re.match(target):
-                raise Exception("Invalid phone number")
-            phone_number = re.sub(r"\D", "", target)
+            for target in targets:
+                phone_number_re = re.compile(r"^\+?[1-9]\d{1,14}$")
+                if not phone_number_re.match(target):
+                    raise ValueError("Invalid phone number")
 
-            call_state = await self.dialer.dial(self.modem, phone_number)
-            self.hass.bus.async_fire(
-                EVENT_GSM_CALL_ENDED,
-                {ATTR_PHONE_NUMBER: phone_number, ATTR_REASON: call_state},
-            )
+                phone_number = re.sub(r"\D", "", target)
 
-        await self.terminate()
+                call_state = await self.dialer.dial(self.modem, phone_number)
+                self.hass.bus.async_fire(
+                    EVENT_GSM_CALL_ENDED,
+                    {ATTR_PHONE_NUMBER: phone_number, ATTR_REASON: call_state},
+                )
+        finally:
+            await self.terminate()
 
     async def connect(self):
         _LOGGER.debug(f"Connecting to {self.device_path}...")
