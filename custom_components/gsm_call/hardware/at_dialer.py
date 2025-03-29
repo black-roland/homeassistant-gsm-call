@@ -19,12 +19,16 @@ class ATDialer:
     async def dial(self, modem: Modem, phone_number: str) -> EndedReason:
         _LOGGER.debug(f"Dialing +{phone_number}...")
         modem.writer.write(f"{self.at_command}+{phone_number};\r\n".encode())
-
         await asyncio.sleep(1)
-        _LOGGER.debug("Reading from modem...")
-        buf = await modem.reader.read(READ_LIMIT)
-        reply = buf.decode().strip()
-        _LOGGER.debug(f"Modem replied with {reply}")
+
+        _LOGGER.debug("Reading from the modem...")
+        try:
+            async with asyncio.timeout(10):
+                buf = await modem.reader.read(READ_LIMIT)
+                reply = buf.decode().strip()
+                _LOGGER.debug(f"Modem replied with {reply}")
+        except asyncio.TimeoutError:
+            raise HomeAssistantError("Timed out reading from the modem")
 
         if "BUSY" in reply:
             raise HomeAssistantError("Busy")
