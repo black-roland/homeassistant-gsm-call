@@ -124,6 +124,18 @@ notify:
     hardware: zte
 ```
 
+### GTM382-based modems
+
+For Globetrotter HSUPA and other GTM382-based modems, add `hardware: gtm382` to your configuration:
+
+```yaml
+notify:
+  - name: call
+    platform: gsm_call
+    device: /dev/ttyHS6
+    hardware: gtm382
+```
+
 ### ATD/ATDT
 
 Some modems may require a different AT command to dial. If the default configuration doesn't work, try specifying `hardware: atdt`:

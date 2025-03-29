@@ -127,6 +127,18 @@ notify:
     hardware: zte
 ```
 
+### Модемы на базе GTM382
+
+Для модемов Globetrotter HSUPA и других на базе чипа GTM382 укажите `hardware: gtm382`:
+
+```yaml
+notify:
+  - name: call
+    platform: gsm_call
+    device: /dev/ttyHS6
+    hardware: gtm382
+```
+
 ### ATD/ATDT
 
 На некоторых модемах может понадобиться использовать другую команду для дозвона. Попробуйте указать `hardware: atdt`, если со стандартной ATD не работает:
@@ -141,7 +153,7 @@ notify:
 
 ## Спасибо
 
-Интеграция оказалась полезной? Хотите сказать спасибо? Кофе автору — ваша благодарность. <kbd>[☕ На кофе](https://mansmarthome.info/donate#donationalerts)</kbd> 
+Интеграция оказалась полезной? Хотите сказать спасибо? Кофе автору — ваша благодарность. <kbd>[☕ На кофе](https://mansmarthome.info/donate#donationalerts)</kbd>
 
 Большое спасибо всем, кто меня поддерживает:
 
