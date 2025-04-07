@@ -167,8 +167,8 @@ notify:
 В целом эта интеграция [должна быть совместима с модемами, указанными здесь](https://www.home-assistant.io/integrations/sms/#list-of-modems-known-to-work).
 
 Протестировано на:
-
-- Huawei E161/E169/E620/E800.
+- Huawei E1550 (определяется в системе как Huawei E161/E169/E620/E800).
 - Huawei E171.
 - Huawei E3531 (необходимо разблокировать с помощью [этого руководства](http://blog.asiantuntijakaveri.fi/2015/07/convert-huawei-e3372h-153-from.html)).
 - ZTE MF192 с указанием `hardware: zte` в конфигурации. Не работает совместно с компонентом для SMS.
+- Globetrotter HSUPA (`hardware: gtm382`).

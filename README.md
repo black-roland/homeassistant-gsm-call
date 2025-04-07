@@ -153,8 +153,8 @@ notify:
 In general, this integration [should be compatible with modems specified here](https://www.home-assistant.io/integrations/sms/#list-of-modems-known-to-work).
 
 Tested on:
-
-- Huawei E161/E169/E620/E800.
+- Huawei E1550 (identifies as Huawei E161/E169/E620/E800).
 - Huawei E171.
 - Huawei E3531 (needs to be unlocked using [this guide](http://blog.asiantuntijakaveri.fi/2015/07/convert-huawei-e3372h-153-from.html)).
 - ZTE MF192 (`hardware: zte` must be specified in the configuration). Cannot be used simultaneously with the SMS integration.
+- Globetrotter HSUPA (`hardware: gtm382`).
