@@ -13,8 +13,9 @@ from ..modem import READ_LIMIT, Modem
 class ATDialer:
     at_command = "ATD"
 
-    def __init__(self, call_duration_sec: int):
-        self.duration_sec = call_duration_sec
+    def __init__(self, dial_timeout_sec: int, call_duration_sec: int):
+        self._dial_sec = dial_timeout_sec
+        self._call_sec = call_duration_sec
 
     async def dial(self, modem: Modem, phone_number: str) -> EndedReason:
         _LOGGER.debug(f"Dialing +{phone_number}...")
@@ -37,7 +38,6 @@ class ATDialer:
             raise HomeAssistantError(f"Modem replied with an error: {reply}")
 
         try:
-            _LOGGER.debug("Waiting for an answer...")
             ended_reason = await self._wait_for_answer(modem)
         except asyncio.TimeoutError:
             ended_reason = EndedReason.NOT_ANSWERED
@@ -49,8 +49,10 @@ class ATDialer:
         return ended_reason
 
     async def _wait_for_answer(self, modem: Modem):
+        _LOGGER.debug(f"Waiting up to {self._dial_sec} seconds for answer...")
+
         is_ringing = False
-        async with asyncio.timeout(self.duration_sec) as timeout:
+        async with asyncio.timeout(self._dial_sec) as timeout:
             while True:
                 modem.writer.write(b"AT+CLCC\r\n")
 
@@ -66,9 +68,9 @@ class ATDialer:
                 if not is_ringing and "+CLCC: 1,0,3" in reply:
                     is_ringing = True
                     _LOGGER.info(
-                        f"Callee's phone started ringing, waiting for {self.duration_sec} seconds..."
+                        f"Callee's phone started ringing, waiting for {self._call_sec} seconds..."
                     )
-                    new_deadline = asyncio.get_running_loop().time() + self.duration_sec
+                    new_deadline = asyncio.get_running_loop().time() + self._call_sec
                     timeout.reschedule(new_deadline)
                     continue
 

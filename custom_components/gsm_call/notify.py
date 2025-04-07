@@ -22,6 +22,7 @@ from .const import (
     ATTR_REASON,
     CONF_AT_COMMAND,
     CONF_CALL_DURATION_SEC,
+    CONF_DIAL_TIMEOUT_SEC,
     CONF_HARDWARE,
     EVENT_GSM_CALL_ENDED,
 )
@@ -42,6 +43,7 @@ PLATFORM_SCHEMA = NOTIFY_PLATFORM_SCHEMA.extend(
     {
         vol.Required(CONF_DEVICE): cv.isdevice,
         vol.Optional(CONF_HARDWARE, default="atd"): vol.In(SUPPORTED_HARDWARE.keys()),
+        vol.Optional(CONF_DIAL_TIMEOUT_SEC, default=20): cv.positive_int,
         vol.Optional(CONF_CALL_DURATION_SEC, default=30): cv.positive_int,
         # CONF_AT_COMMAND is replaced by CONF_HARDWARE
         vol.Optional(CONF_AT_COMMAND, default="ATD"): cv.matches_regex("^(ATD|ATDT)$"),
@@ -59,7 +61,10 @@ def get_service(
     if config[CONF_HARDWARE] == "atd" and config[CONF_AT_COMMAND] == "ATDT":
         dialer_name = "atdt"
 
-    dialer = SUPPORTED_HARDWARE[dialer_name](config[CONF_CALL_DURATION_SEC])
+    dialer = SUPPORTED_HARDWARE[dialer_name](
+        dial_timeout_sec=config[CONF_DIAL_TIMEOUT_SEC],
+        call_duration_sec=config[CONF_CALL_DURATION_SEC],
+    )
 
     return GsmCallNotificationService(
         config[CONF_DEVICE],

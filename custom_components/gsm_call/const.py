@@ -10,6 +10,7 @@ _LOGGER = logging.getLogger(__name__)
 DOMAIN = "gsm_call"
 
 CONF_AT_COMMAND = "at_command"
+CONF_DIAL_TIMEOUT_SEC = "dial_timeout_sec"
 CONF_CALL_DURATION_SEC = "call_duration_sec"
 CONF_HARDWARE = "hardware"
 
