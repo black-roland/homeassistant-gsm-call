@@ -44,9 +44,9 @@ action:
     message: "Required by HASS but not used by the integration — enter any text here"
 ```
 
-### Dialing duration
+### Ringing duration
 
-By default, the integration tries to make a phone call for 30 seconds. Duration can be changed by specifying `call_duration_sec`:
+By default, the called phone will ring for approximately 30 seconds. This duration can be adjusted by specifying `call_duration_sec`:
 
 ```yaml
 notify:
@@ -55,9 +55,14 @@ notify:
     device: /dev/serial/by-id/usb-HUAWEI_Technology_HUAWEI_Mobile-if01-port0
     call_duration_sec: 40
 ```
-Please take into account that your service provider might interrupt dialing before reaching the desired time if the duration is too high.
 
-The duration is counted from the moment the called phone starts ringing.
+Note:
+- The duration is counted from the moment the called phone starts ringing.
+- Your carrier might interrupt outgoing call before reaching the desired time if the duration is too high.
+
+### Dialing timeout
+
+Before the called phone starts ringing, there's typically a 5-10 second delay while the call connects. The integration will wait up to 20 seconds (default) for this connection to establish. This timeout can be adjusted by specifying `dial_timeout_sec`.
 
 ## Events
 
