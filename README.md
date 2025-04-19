@@ -88,7 +88,7 @@ In addition to the `reason`, you can filter by the `phone_number`. All possible 
 
 ## SMS support and other features
 
-This integration is intended for making voice calls. Let's keep it simple. There are no plans to add SMS or other functionality not directly related to voice calls. For SMS support, please check out [this integration](https://www.home-assistant.io/integrations/sms/).
+This integration is intended for making voice calls. For SMS support, please check out [this integration](https://www.home-assistant.io/integrations/sms/).
 
 ### Using together with the SMS integration
 
