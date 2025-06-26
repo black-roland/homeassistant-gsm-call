@@ -106,7 +106,7 @@ $ ls -1 /dev/serial/by-id/usb-HUAWEI_Technology_HUAWEI_Mobile-if0*
 
 Для использования этой интеграции совместно с [sms](https://www.home-assistant.io/integrations/sms/), укажите разные интерфейсы в настройках каждой интеграции (иначе они могут блокировать друг друга).
 
-## Устранение неполадок
+## Поиск и устранение проблем
 
 Для начала, пожалуйста, включите отладочные логи в `configuration.yaml`:
 
@@ -115,6 +115,8 @@ logger:
   logs:
     custom_components.gsm_call: debug
 ```
+
+После перезапуска Home Assistant, проверьте логи в разделе *Настройки* → *Система* → *Журнал* (или используйте [эту ссылку](https://my.home-assistant.io/redirect/logs/)).
 
 ### ModemManager
 
@@ -144,15 +146,15 @@ notify:
     hardware: gtm382
 ```
 
-### ATD/ATDT
+### ATD/ATDT (команды для набора номера)
 
-На некоторых модемах может понадобиться использовать другую команду для дозвона. Попробуйте указать `hardware: atdt`, если со стандартной ATD не работает:
+Большинство модемов должны работать со стандартными настройками, но если возникли проблемы, вашему модему может потребоваться особая команда набора номера. Для проверки попробуйте указать `hardware: atdt`:
 
 ```yaml
 notify:
   - name: call
     platform: gsm_call
-    device: /dev/serial/by-id/usb-HUAWEI_Technology_HUAWEI_Mobile-if01-port0
+    device: /dev/serial/by-id/usb-Obscure_Hardware-if01-port0
     hardware: atdt
 ```
 

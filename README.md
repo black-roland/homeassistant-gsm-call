@@ -105,13 +105,15 @@ To use this together with the [sms](https://www.home-assistant.io/integrations/s
 
 ## Troubleshooting
 
-For troubleshooting, please enable debug logs in `configuration.yaml` first:
+For troubleshooting, first enable debug logs in `configuration.yaml`:
 
 ```yaml
 logger:
   logs:
     custom_components.gsm_call: debug
 ```
+
+After restarting, check the logs in *Settings* → *System* → *Logs* (or use [this link to open the logs](https://my.home-assistant.io/redirect/logs/)).
 
 ### ModemManager
 
@@ -141,15 +143,15 @@ notify:
     hardware: gtm382
 ```
 
-### ATD/ATDT
+### ATD/ATDT (dialing commands)
 
-Some modems may require a different AT command to dial. If the default configuration doesn't work, try specifying `hardware: atdt`:
+Most modems work perfectly with default settings, but if you're experiencing issues, your modem might require a specific dialing command. As a troubleshooting step, try specifying `hardware: atdt`:
 
 ```yaml
 notify:
   - name: call
     platform: gsm_call
-    device: /dev/serial/by-id/usb-HUAWEI_Technology_HUAWEI_Mobile-if01-port0
+    device: /dev/serial/by-id/usb-Obscure_Hardware-if01-port0
     hardware: atdt
 ```
 
